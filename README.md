@@ -1,6 +1,6 @@
 # CSE3311_Team9_ContentProject
 
-####Fall 2020 CSE3311-Team9 project at The University of Texas at Arlington.
+The University of Texas at Arlington - Fall 2020 CSE3311-Team9 project.
 
 Team members:<br />
 Vivek Kumar Yadav <br />
