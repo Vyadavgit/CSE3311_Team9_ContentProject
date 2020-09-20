@@ -1,0 +1,46 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" type="text/css" href="{% static '/css/register.css' %}">
+</head>
+
+<body>
+<form id="msform" method="POST" action="">
+
+    <h2>Register account</h2>
+    {% csrf_token %}
+    <table>
+        <tr>
+        <th scope="col">{{form.first_name}}</th>
+        <th scope="col">{{form.last_name}}</th>
+    </tr>
+    </table>
+    {{form.username}}
+    {{form.email}}
+    {{form.password1}}
+    {{form.password2}}
+
+    <input type="submit" name="submit" class="submit action-button" value="Register" />
+
+    {{form.errors}}
+
+    <div>
+        <a>Already have an account? </a><a href="{% url 'login' %}">Login</a>
+    </div>
+</form>
+
+<script>
+        var form_fields = document.getElementsByTagName('input')
+        form_fields[1].placeholder='Enter first name';
+		form_fields[2].placeholder='Enter last name';
+		form_fields[3].placeholder='Enter username';
+		form_fields[4].placeholder='Enter email';
+		form_fields[5].placeholder='Enter password';
+		form_fields[6].placeholder='Confirm password';
+    </script>
+</body>
+</html>
+

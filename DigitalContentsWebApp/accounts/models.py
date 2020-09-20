@@ -2,7 +2,7 @@ from django.db import models
 
 
 # Create your models here.
-class Subscriber(models.Models):
+class Customer(models.Model):
     GENDER_CHOICES = [('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')]
     first_name = models.CharField(max_length=250, null=True)
     last_name = models.CharField(max_length=250, null=True)

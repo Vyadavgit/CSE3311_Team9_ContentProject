@@ -1,10 +1,37 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Yay, We did it!</title>
-</head>
-<body>
+{% extends 'accounts/main.html' %}
 
-</body>
-</html>
+{% block content %}
+
+<div class="row">
+    <div class="col">
+            <h5>Free Contents:</h5>
+            <table class="table table-sm">
+                <tr>
+                    <th>Content 1</th>
+                    <th>Content 2</th>
+                    <th>Content 3</th>
+                    <th>Content 4</th>
+                    <th>Content 5</th>
+                    <th>Content 6</th>
+                </tr>
+            </table>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+            <h5>Premium Contents(locked):</h5>
+            <table class="table table-sm">
+                <tr>
+                    <th>Content 1</th>
+                    <th>Content 2</th>
+                    <th>Content 3</th>
+                    <th>Content 4</th>
+                    <th>Content 5</th>
+                    <th>Content 6</th>
+                </tr>
+            </table>
+    </div>
+</div>
+
+{% endblock %}
