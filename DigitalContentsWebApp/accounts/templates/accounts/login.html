@@ -1,0 +1,37 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" type="text/css" href="{% static '/css/register.css' %}">
+</head>
+
+<body>
+<form id="msform" method="POST" action="">
+    {% csrf_token %}
+    <h2>Please sign in</h2>
+
+    <input type="text" name="username" placeholder="Enter username" />
+    <input type="password" name="password" placeholder="Enter password" />
+
+    <input type="submit" name="submit" class="submit action-button" value="Login" />
+
+    <div>
+        {% for message in messages %}
+        <p id="messages">{{message}}</p>
+        {% endfor %}
+    </div>
+
+    <div>
+        <a>Not registered yet? </a><a href="{% url 'register' %}">Register</a>
+    </div>
+    <div>
+        <a>Forgot Password? </a><a href="{% url 'reset_password' %}">Reset Password</a>
+    </div>
+</form>
+
+
+</body>
+</html>
+

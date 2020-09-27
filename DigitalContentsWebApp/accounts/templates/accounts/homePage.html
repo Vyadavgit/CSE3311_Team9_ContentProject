@@ -1,0 +1,38 @@
+<!--<a href="{% url 'login' %}">login</a>-->
+<!--<a href="{% url 'register' %}">register</a>-->
+
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+	<title>LANDING PAGE</title>
+    <link rel="stylesheet" type="text/css" href="{% static '/css/homePage.css' %}">
+</head>
+<body>
+    <div class="header">
+        <h1>Welcome to Tulwee</h1>
+        <p>Enjoy the contents<br>Create a content<br></p>
+    </div>
+
+
+    <div class="icon">
+        <div class="text">
+            <h5>Join us</h5>
+        </div>
+        <a class="button" href="{% url 'login' %}">Log in</a><br><br><br>
+        <a class="button" href="{% url 'register' %}">Register</a>
+    </div>
+
+    <div class="notes">
+        <ul>
+            <li>Join the media</li>
+            <li>Explore what's new</li>
+            <li>Monetize your content</li>
+        </ul>
+    </div>
+
+    <footer class="main-foot">
+        <p>Copyright &copy, 2020 Tulwee</p>
+    </footer>
+</body>
+</html>

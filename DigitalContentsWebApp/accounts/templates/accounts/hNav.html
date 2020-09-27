@@ -1,0 +1,32 @@
+<!-- We got this code from: https://bootstrapious.com/p/bootstrap-sidebar,
+this sets up the horizontal sidebar -->
+
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #091540;">
+    <div class="container-fluid">
+
+        <button type="button" id="sidebarCollapse" class="btn btn-info" style="background-color: #091540;>
+            <i class="fas fa-align-left"></i>
+            <span></span>
+        </button>
+        <button class="btn btn-dark d-inline-block d-lg-none ml-auto" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="fas fa-align-justify"></i>
+        </button>
+
+
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="nav navbar-nav ml-auto">
+                <form class="form-inline">
+                    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                </form>
+                <li class="nav-item active">
+                    <a class="nav-link" href="{% url 'view_profile' %}">Profile</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
