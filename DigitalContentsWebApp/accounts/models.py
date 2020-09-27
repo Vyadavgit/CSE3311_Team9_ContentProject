@@ -1,17 +1,21 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 # Create your models here.
 class Customer(models.Model):
-    GENDER_CHOICES = [('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')]
+    user = models.OneToOneField(User, null=True, blank=True, on_delete=models.CASCADE)
     first_name = models.CharField(max_length=250, null=True)
     last_name = models.CharField(max_length=250, null=True)
+    gender = models.CharField(max_length=25, blank=True)
+    birth_date = models.DateField(null=True)
     email = models.CharField(max_length=250, null=True)
-    gender = models.CharField(max_length=25, choices=GENDER_CHOICES, blank=True)
+    phone_number = models.CharField(max_length=250, null=True)
+    profession = models.CharField(max_length=250, null=True)
 
     def __str__(self):
-        if self.first_Name and self.last_Name:
-            identity = (self.first_Name + " " + self.last_Name)
+        if self.first_name and self.last_name:
+            identity = (self.first_name + " " + self.last_name)
         else:
             identity = str(self.id)
         return identity

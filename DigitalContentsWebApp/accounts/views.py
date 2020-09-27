@@ -11,6 +11,9 @@ from .forms import UserRegistrationForm
 # from .decorators import permitted_only
 from .decorators import unauthenticated_user, allowed_users
 
+from .models import *
+from .forms import *
+
 
 @unauthenticated_user
 def registerPage(request):
@@ -21,9 +24,6 @@ def registerPage(request):
         if form.is_valid():
             user = form.save()
             username = form.cleaned_data.get('username')
-
-            group = Group.objects.get(name='Viewer')
-            user.groups.add(group)
 
             messages.success(request, 'User account was successfully created for ' + username)
 
@@ -43,7 +43,7 @@ def loginPage(request):
 
         if user is not None:
             login(request, user)
-            return redirect('home')
+            return redirect('dashboard')
         else:
             messages.info(request, 'Invalid username or password!')
 
@@ -60,5 +60,34 @@ def logoutFn(request):
 # @allowed_users(allowed_roles=['Viewer'])
 # @allowed_users(allowed_roles=['Subscriber'])
 # @permitted_only
-def homePage(request):
+def viewDashboard(request):
     return render(request, 'accounts/dashboard.html')
+
+
+@login_required(login_url='login')
+def viewProfilePage(request):
+    if request.user.is_authenticated:
+        customer = Customer.objects.get(user=request.user)
+    context = {'customer': customer}
+    return render(request, 'accounts/viewProfilePage.html', context)
+
+
+@login_required(login_url='login')
+def editProfilePage(request):
+    if request.user.is_authenticated:
+        customer = Customer.objects.get(user=request.user)
+
+    form = CustomerForm(instance=customer)
+    context = {'form': form, 'customer': customer}
+
+    if request.method == 'POST':
+        form = CustomerForm(request.POST, instance=customer)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Your profile has been updated successfully.")
+            return redirect('view_profile')
+    return render(request, 'accounts/editProfilePage.html', context)
+
+
+def homePage(request):
+    return render(request, "accounts/homePage.html")
