@@ -81,7 +81,7 @@ def editProfilePage(request):
     context = {'form': form, 'customer': customer}
 
     if request.method == 'POST':
-        form = CustomerForm(request.POST, instance=customer)
+        form = CustomerForm(request.POST, request.FILES, instance=customer)
         if form.is_valid():
             form.save()
             messages.success(request, "Your profile has been updated successfully.")

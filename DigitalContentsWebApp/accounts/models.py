@@ -9,6 +9,7 @@ class Customer(models.Model):
     last_name = models.CharField(max_length=250, null=True)
     gender = models.CharField(max_length=25, blank=True)
     birth_date = models.DateField(null=True)
+    profile_picture = models.ImageField(default="profile_null.png", null=True, blank=True)
     email = models.CharField(max_length=250, null=True)
     phone_number = models.CharField(max_length=250, null=True)
     profession = models.CharField(max_length=250, null=True)
