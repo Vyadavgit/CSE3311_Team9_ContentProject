@@ -1,6 +1,7 @@
-{% load static %}
 
 <!DOCTYPE html>
+
+{% load static %}
 <html>
 
 <head>
@@ -8,31 +9,40 @@
 </head>
 
 <body>
-<form id="msform" method="POST" action="">
 
-    <h2>Register account</h2>
-    {% csrf_token %}
-    <table>
+<div class = box>
+    <form id="msform" method="POST" action="">
+
+        <h2>Register account</h2>
+        {% csrf_token %}
+        <table>
         <tr>
-        <th scope="col">{{form.first_name}}</th>
-        <th scope="col">{{form.last_name}}</th>
-    </tr>
-    </table>
-    {{form.username}}
-    {{form.email}}
-    {{form.password1}}
-    {{form.password2}}
+            <th scope="col">{{form.first_name}}</th>
+            <th scope="col">{{form.last_name}}</th>
+        </tr>
+        </table>
+        {{form.username}}
+        {{form.email}}
+        {{form.password1}}
+        {{form.password2}}
 
-    <input type="submit" name="submit" class="submit action-button" value="Register" />
+        <style>
+            input:focus, textarea:focus, select:focus{
+                outline: none;
+            }
+        </style>
 
-    {{form.errors}}
+        <input type="submit" name="submit" class="submit action-button" value="Register" />
 
-    <div>
-        <a>Already have an account? </a><a href="{% url 'login' %}">Login</a>
-    </div>
-</form>
+        {{form.errors}}
 
-<script>
+        <div>
+            <a>Already have an account? </a><a href="{% url 'login' %}" id = "a">Login</a>
+        </div>
+    </form>
+</div>
+
+    <script>
         var form_fields = document.getElementsByTagName('input')
         form_fields[1].placeholder='Enter first name';
 		form_fields[2].placeholder='Enter last name';

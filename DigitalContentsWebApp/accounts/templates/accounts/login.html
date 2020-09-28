@@ -1,35 +1,43 @@
-{% load static %}
 
 <!DOCTYPE html>
+
+{% load static %}
 <html>
 
 <head>
-    <link rel="stylesheet" type="text/css" href="{% static '/css/register.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static '/css/login.css' %}">
 </head>
 
 <body>
-<form id="msform" method="POST" action="">
-    {% csrf_token %}
-    <h2>Please sign in</h2>
 
-    <input type="text" name="username" placeholder="Enter username" />
-    <input type="password" name="password" placeholder="Enter password" />
+<div class = box>
+    <form id="msform" method="POST" action="">
+        {% csrf_token %}
+        <h2>Sign in</h2>
 
-    <input type="submit" name="submit" class="submit action-button" value="Login" />
+        <input type="text" name="username" placeholder="Enter username" />
+        <input type="password" name="password" placeholder="Enter password" />
 
-    <div>
-        {% for message in messages %}
-        <p id="messages">{{message}}</p>
-        {% endfor %}
-    </div>
+        <input type="submit" name="submit" class="submit action-button" value="Sign in" />
+        <style>
+            input:focus, textarea:focus, select:focus{
+                outline: none;
+            }
+        </style>
 
-    <div>
-        <a>Not registered yet? </a><a href="{% url 'register' %}">Register</a>
-    </div>
-    <div>
-        <a>Forgot Password? </a><a href="{% url 'reset_password' %}">Reset Password</a>
-    </div>
-</form>
+        <div>
+            <a>Not registered yet? </a><a href="{% url 'register' %}" id = "a">Create an account</a>
+        </div>
+        <div>
+            <a>Forgot password? </a><a href="{% url 'reset_password' %}" id = "b">Reset password</a>
+        </div>
+        <div class="newbox">
+            {% for message in messages %}
+            <p id="messages">{{message}}</p>
+            {% endfor %}
+        </div>
+    </form>
+</div>
 
 
 </body>

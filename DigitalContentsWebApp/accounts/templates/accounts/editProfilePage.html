@@ -1,4 +1,4 @@
-<!--Credit/citation: https://bootsnipp.com/snippets/K0ZmK-->
+<!--Credit/citation: The code below has been obtained from https://bootsnipp.com/snippets/K0ZmK and modified to use.-->
 
 {% load static %}
 
@@ -49,6 +49,11 @@
             <div class="col-md-8">
                 <div class="tab-content profile-tab" id="myTabContent">
                     <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                        <div>
+                            {% for message in messages %}
+                            <p id="messages">{{message}}</p>
+                            {% endfor %}
+                        </div>
                         {% for field in form %}
                         <div class="row">
                             <div class="col-md-6">
