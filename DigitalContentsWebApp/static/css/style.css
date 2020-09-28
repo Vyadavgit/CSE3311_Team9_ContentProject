@@ -64,7 +64,7 @@ span {
 #sidebar {
     min-width: 250px;
     max-width: 250px;
-    background: #091540;
+    background: -webkit-linear-gradient(left, #3931af, #00c6ff);
     color: #ffffff;
     transition: all 0.3s;
 }
@@ -116,7 +116,7 @@ span {
 
 #sidebar .sidebar-header {
     padding: 20px;
-    background: #091540;
+    background: -webkit-linear-gradient(left, #3931af, #00c6ff);
 }
 
 #sidebar .sidebar-header strong {
@@ -147,7 +147,7 @@ span {
 #sidebar ul li.active>a,
 a[aria-expanded="true"] {
     color: #ffffff;
-    background: #091540;
+    background: -webkit-linear-gradient(left, #3931af, #00c6ff);
 }
 
 a[data-toggle="collapse"] {

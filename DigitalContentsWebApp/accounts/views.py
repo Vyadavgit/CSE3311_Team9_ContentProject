@@ -86,8 +86,11 @@ def editProfilePage(request):
             form.save()
             messages.success(request, "Your profile has been updated successfully.")
             return redirect('view_profile')
+        else:
+            messages.warning(request, 'PLease enter valid information following specified formats.')
     return render(request, 'accounts/editProfilePage.html', context)
 
 
+@unauthenticated_user
 def homePage(request):
     return render(request, "accounts/homePage.html")
