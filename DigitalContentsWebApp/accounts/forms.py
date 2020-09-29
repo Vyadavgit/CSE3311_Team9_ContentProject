@@ -26,7 +26,7 @@ class CustomerForm(ModelForm):
     gender = forms.CharField(required=True, widget=forms.TextInput(attrs={"placeholder": "Enter your gender: "
                                                                                          "Male/Female/Other"}))
     birth_date = forms.DateField(required=True, widget=forms.TextInput(attrs={"placeholder": "Enter your birth date: "
-                                                                                             "dd-mm-yyyy"}))
+                                                                                             "yyyy-mm-dd"}))
     email = forms.CharField(required=True, widget=forms.TextInput(attrs={"placeholder": "Enter email address"}))
     phone_number = forms.CharField(required=False, widget=forms.TextInput(attrs={"placeholder": "Enter phone number: "
                                                                                                 "(000) 000 0000"}))

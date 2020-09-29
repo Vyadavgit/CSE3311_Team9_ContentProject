@@ -1,7 +1,10 @@
-{% load static %}
-<nav class=""navbar navbar-expand-lg navbar-dark" style="background: -webkit-linear-gradient(left, #3931af, #00c6ff);">
-
 <!DOCTYPE html>
+
+<!-- VIDEO credit/Citation: https://gist.github.com/jsturgis/3b19447b304616f18657 -->
+
+{% load static %}
+<nav class="navbar navbar-expand-lg navbar-dark" style="background: -webkit-linear-gradient(left, #3931af, #00c6ff);">
+
 <html>
 <head>
 	<title>LANDING PAGE</title>
@@ -20,7 +23,7 @@
         </div>
         <a class="button" href="{% url 'login' %}">Log in</a><br><br><br>
         <a class="button" href="{% url 'register' %}">Register</a>
-        </div>
+    </div>
 
     <div class="notes">
         <ul>
@@ -30,8 +33,53 @@
         </ul>
     </div>
 
+    <div class = "video">
+
+    <video width="420" height="420" controls id = "a">
+          <source src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
+    </video>
+
+    <video width="420" height="420" controls id = "b">
+          <source src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4" type="video/mp4">
+    </video>
+
+    <video width="420" height="420" controls id = "c">
+          <source src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" type="video/mp4">
+    </video>
+
+    </div>
+
+    <div class="a">
+        <p> Video name: Big Buck Bunny
+            <br>Video source: http://commondatastorage.googleapis.com/
+            <br>gtv-videos-bucket/sample/BigBuckBunny.mp4
+        </p>
+    </div>
+
+    <div class="b">
+        <p>Video name: Elephant Dream
+            <br>Video source: http://commondatastorage.googleapis.com/
+        <br>gtv-videos-bucket/sample/ElephantsDream.mp4
+        </p>
+    </div>
+
+    <div class="c">
+        <p>
+            Video name: For Bigger Blazes
+            <br>Video source: http://commondatastorage.googleapis.com/
+            <br>gtv-videos-bucket/sample/ForBiggerBlazes.mp4
+        </p>
+    </div>
+
+    <style>
+        video:focus, textarea:focus, select:focus{
+         outline: none;
+         }
+    </style>
+
     <footer class="main-foot">
         <p>Copyright &copy, 2020 Tulwee</p>
     </footer>
 </body>
 </html>
+</nav>

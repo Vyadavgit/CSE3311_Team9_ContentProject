@@ -1,6 +1,8 @@
+@import "https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700";
+
 body{
     color:#555;
-    font-family:Arial, Helvetica, sans-serif;
+    font-family: 'Poppins', sans-serif;
     font-size:16px;
     line-height:1.6em;
     margin:0;
@@ -13,7 +15,7 @@ body{
 }
 
 .header h1{
-    font-family:cursive;
+    font-family: 'Poppins', sans-serif;
     font-size:40px;
     color:#F5FFFA;
 }
@@ -30,14 +32,15 @@ a{
 
 
 .icon{
-    margin-top:90px;
+    margin-top:40px;
     border:2px #F0FFF0 solid;
-    margin-left:600px;
-    margin-right:600px;
+    margin-left:550px;
+    margin-right:550px;
     padding-bottom:60px;
     background-color:white;
-    text-align:center;
-    border-radius:20px;
+    text-align: center;
+    border-radius:10px;
+
 
 }
 .text{
@@ -51,9 +54,10 @@ a{
     left:50%;
     color:#fff;
     padding:10px;
-    padding-right:80px;
+    padding-right:60px;
     margin-bottom:10px;
     border-radius:20px;
+    text-align: center;
 }
 
 .button:hover{
@@ -74,7 +78,40 @@ a{
 }
 
 .notes ul{
-    padding:0;
     list-style:none;
-    color:black;
+    color: black;
+    margin-left:550px;
+    margin-right:550px;
+    margin-bottom: 0px;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+
 }
+
+.a{
+    float: left;
+    weight: 30%;
+    margin-left: 110px;
+    color: #000;
+    font-family: 'Poppins', sans-serif;
+    font-size: 10px;
+}
+
+.b{
+    float: left;
+    weight: 70%;
+    margin-left:70px;
+    color: #000;
+    font-family: 'Poppins', sans-serif;
+    font-size: 10px;
+}
+
+.c{
+    float: right;
+    weight: 50%;
+    margin-right:100px;
+    color: #000;
+    font-family: 'Poppins', sans-serif;
+    font-size: 10px;
+}
+
