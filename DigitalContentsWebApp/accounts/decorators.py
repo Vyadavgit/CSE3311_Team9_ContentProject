@@ -2,6 +2,9 @@ from django.http import HttpResponse
 from django.shortcuts import redirect
 
 
+# The following function verifies if the user is authenticated or not. If the user is authenticated it redirects the
+# user to url = 'dashboard' else it returns the user's request to function associated with this function in views.py
+# i.e the request is passed to the function having @unauthenticated_user on its top in views.py
 def unauthenticated_user(view_func):
     def wrapper_func(request, *args, **kwargs):
         if request.user.is_authenticated:
@@ -12,6 +15,8 @@ def unauthenticated_user(view_func):
     return wrapper_func
 
 
+# This function defines the functionality of allowing only the users in allowed roles to access the specified
+# functionality in the application.
 def allowed_users(allowed_roles=[]):
     def decorator(view_func):
         def wrapper_func(request, *args, **kwargs):
@@ -29,8 +34,7 @@ def allowed_users(allowed_roles=[]):
 
     return decorator
 
-
-# todo this function will be later used when allowing only subscriber to access some of the features. same for other
+# todo this function will be used later when allowing only subscriber to access some of the features. same for other
 #  permitted users
 
 # def permitted_only(view_func):

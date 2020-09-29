@@ -34,10 +34,11 @@
 
         <input type="submit" name="submit" class="submit action-button" value="Register" />
 
-        {{form.errors}}
-
         <div>
             <a>Already have an account? </a><a href="{% url 'login' %}" id = "a">Login</a>
+        </div>
+        <div>
+              {{form.errors}}
         </div>
     </form>
 </div>
