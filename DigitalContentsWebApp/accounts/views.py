@@ -16,6 +16,13 @@ from .forms import *
 
 
 @unauthenticated_user
+def homePage(request):
+    return render(request, "accounts/homePage.html")
+
+
+# Unauthenticated users are redirected to this function. The user's post request is validated and user's accounts is
+# registered.
+@unauthenticated_user
 def registerPage(request):
     form = UserRegistrationForm()
 
@@ -25,7 +32,7 @@ def registerPage(request):
             user = form.save()
             username = form.cleaned_data.get('username')
 
-            messages.success(request, 'User account was successfully created for ' + username)
+            messages.success(request, 'Account successfully created for ' + username)
 
             return redirect('login')
 
@@ -33,6 +40,8 @@ def registerPage(request):
     return render(request, 'accounts/register.html', context)
 
 
+# Unauthenticated users are redirected to login page and this function validates the post request i.e login
+# information entered on login page to allows user into their account.
 @unauthenticated_user
 def loginPage(request):
     if request.method == 'POST':
@@ -72,6 +81,8 @@ def viewProfilePage(request):
     return render(request, 'accounts/viewProfilePage.html', context)
 
 
+# login is required to access profile update feature. The function below receives the profile information and if the
+# information is valid it updates it into the user's account.
 @login_required(login_url='login')
 def editProfilePage(request):
     if request.user.is_authenticated:
@@ -89,8 +100,3 @@ def editProfilePage(request):
         else:
             messages.warning(request, 'PLease enter valid information following specified formats.')
     return render(request, 'accounts/editProfilePage.html', context)
-
-
-@unauthenticated_user
-def homePage(request):
-    return render(request, "accounts/homePage.html")
