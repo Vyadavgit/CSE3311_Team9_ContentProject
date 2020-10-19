@@ -1,0 +1,42 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <h1 align="center">Upload video page</h1>
+</head>
+
+<body style="background: -webkit-linear-gradient(left, #3931af, #00c6ff);">
+
+
+<form method="post" action="" enctype="multipart/form-data" align="center">
+    {% csrf_token %}
+    {% for field in form %}
+    <div class="row">
+        <div class="col-md-6">
+            <label>{{ field.label }}</label>
+        </div>
+        <div class="col-md-10">
+            <p>{{field}}</p>
+        </div>
+    </div>
+    {% endfor %}
+
+    <input type="Submit" name="Upload">
+    <a class="profile-edit-btn" name="btnAddMore" href="{% url 'dashboard' %}">Back</a>
+</form>
+
+
+<div align="center">
+    {% for message in messages %}
+    <p id="messages">{{message}}</p>
+    {% endfor %}
+</div>
+
+</body>
+</html>
+
+
+
+

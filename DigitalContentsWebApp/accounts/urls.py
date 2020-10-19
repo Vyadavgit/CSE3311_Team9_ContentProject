@@ -24,7 +24,11 @@ urlpatterns = [
 
     path('dashboard/', views.viewDashboard, name="dashboard"),
     path('view_profile/', views.viewProfilePage, name="view_profile"),
-    path('edit_profile/', views.editProfilePage, name="edit_profile")
+    path('edit_profile/', views.editProfilePage, name="edit_profile"),
+    path('upload_video/', views.uploadVideoPage, name="upload_video"),
+    path('my_contents/', views.viewMyContentsPage, name="my_contents"),
+
+    # path('comedy_content/', views.ComedyVideoPage, name="comedy_content"),
 
 ]
 

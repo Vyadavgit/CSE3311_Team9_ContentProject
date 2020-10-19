@@ -37,3 +37,9 @@ class CustomerForm(ModelForm):
         model = Customer
         fields = '__all__'
         exclude = ['user']
+
+
+class VideoUploadForm(ModelForm):
+    class Meta:
+        model = File
+        fields = '__all__'

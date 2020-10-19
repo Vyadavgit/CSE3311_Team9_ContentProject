@@ -100,3 +100,44 @@ def editProfilePage(request):
         else:
             messages.warning(request, 'PLease enter valid information following specified formats.')
     return render(request, 'accounts/editProfilePage.html', context)
+
+
+@login_required(login_url='login')
+def uploadVideoPage(request):
+    if request.user.is_authenticated:
+        current_user = request.user
+
+    form = VideoUploadForm()
+
+    if request.method == 'POST':
+        form = VideoUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Video uploaded successfully!")
+            return redirect('upload_video')
+        else:
+            messages.warning(request, 'Error uploading file!')
+
+    context = {'form': form}
+    return render(request, 'accounts/uploadVideoPage.html', context)
+
+
+@login_required(login_url='login')
+def viewMyContentsPage(request):
+    if request.user.is_authenticated:
+        current_user = request.user
+
+        current_customer = Customer.objects.get(user=current_user)
+        files = File.objects.filter(customer=current_customer)
+        context = {'files': files, 'current_customer': current_customer}
+
+    return render(request, 'accounts/viewMyContentPage.html', context)
+
+#todo will be done soon
+# @login_required(login_url='login')
+# def ComedyVideoPage(request):
+#     if request.user.is_authenticated:
+#         files = File.objects.filter(category='Technology')
+#         context = {'files': files}
+#     return render(request, 'accounts/ComedyVideoPage.html', context)
+

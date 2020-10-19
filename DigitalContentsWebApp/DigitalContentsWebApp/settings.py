@@ -19,7 +19,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'l5jnj%x$h_1(2)j#ge-8joq$y4+y^@2b+3z@1h^nzw3zxcm5-d'
+SECRET_KEY = '**********************'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'accounts.apps.AccountsConfig',
+
+    'storages',
 ]
 
 MIDDLEWARE = [
@@ -72,12 +74,37 @@ WSGI_APPLICATION = 'DigitalContentsWebApp.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
+# SQLITE DATABASE
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#     }
+# }
+
+# POSTGRES DATABASE LOCAL
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': '*******',
+        'USER': 'postgres',
+        'PASSWORD': '*****',
+        'HOST': 'localhost',
+        'PORT': '5432'
     }
 }
+
+# POSTGRES AWS RDS DATABASE LIVE
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': '******',
+#         'USER': '******',
+#         'PASSWORD': '*******',
+#         'HOST': '**********',
+#         'PORT': '*******'
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
@@ -129,4 +156,15 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'digitalcontentswebapp2020@gmail.com'
-EMAIL_HOST_PASSWORD = 'ProjectM20'
+EMAIL_HOST_PASSWORD = '******'
+
+# S3 BUCKET CONFIGURATIONS
+AWS_ACCESS_KEY_ID = '**************'
+AWS_SECRET_ACCESS_KEY = '**************'
+AWS_STORAGE_BUCKET_NAME = '**************'
+
+# django storages S3 bucket https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html
+AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL = None
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
