@@ -1,0 +1,38 @@
+{% extends 'accounts/main.html' %}
+
+{% block content %}
+
+{% load static %}
+
+<h5>Other Contents</h5>
+
+<div class="row">
+    {% for file in files %}
+    {% if forloop.counter0|divisibleby:2 %}
+</div><div class="row">
+    {% endif %}
+
+    {% if forloop.counter0|divisibleby:2 %}
+    <div class="col" align="center">
+        <br>
+        <video width='500' height='300' controls>
+            <source src="{{file.upload_video.url}}" type='video/mp4'>
+            Your browser does not support the video tag.
+        </video>
+        <div>{{ file.description }}</div>
+        <br>
+    </div>
+    {% else %}
+    <div class="col" align="center">
+        <br>
+        <video width='500' height='300' controls>
+            <source src="{{file.upload_video.url}}" type='video/mp4'>
+            Your browser does not support the video tag.
+        </video>
+        <div>{{ file.description }}</div>
+        <br>
+    </div>
+    {% endif %}
+    {% endfor %}
+</div>
+{% endblock %}

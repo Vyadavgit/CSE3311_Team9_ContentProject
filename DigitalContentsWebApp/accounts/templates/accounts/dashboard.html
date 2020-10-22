@@ -2,36 +2,48 @@
 
 {% block content %}
 
-<div class="row">
-    <div class="col">
-            <h5>Free Contents:</h5>
-            <table class="table table-sm">
-                <tr>
-                    <th>Content 1</th>
-                    <th>Content 2</th>
-                    <th>Content 3</th>
-                    <th>Content 4</th>
-                    <th>Content 5</th>
-                    <th>Content 6</th>
-                </tr>
-            </table>
-    </div>
-</div>
+{% load static %}
+
+<h5>Freemium Contents</h5>
 
 <div class="row">
-    <div class="col">
-            <h5>Premium Contents(locked):</h5>
-            <table class="table table-sm">
-                <tr>
-                    <th>Content 1</th>
-                    <th>Content 2</th>
-                    <th>Content 3</th>
-                    <th>Content 4</th>
-                    <th>Content 5</th>
-                    <th>Content 6</th>
-                </tr>
-            </table>
+    {% for file in files %}
+        {% if forloop.counter0|divisibleby:2 %}
+            </div><div class="row">
+        {% endif %}
+
+    {% if forloop.counter0|divisibleby:2 %}
+    <div class="col" align="center">
+        <br>
+        <video width='500' height='300' controls>
+            <source src="{{file.upload_video.url}}" type='video/mp4'>
+            Your browser does not support the video tag.
+        </video>
+        <div>{{ file.description }}</div>
+        <br>
     </div>
+     {% else %}
+        <div class="col" align="center">
+        <br>
+        <video width='500' height='300' controls>
+            <source src="{{file.upload_video.url}}" type='video/mp4'>
+            Your browser does not support the video tag.
+        </video>
+        <div>{{ file.description }}</div>
+        <br>
+    </div>
+    {% endif %}
+{% endfor %}
 </div>
+
+
+
+
+
+
+
+    <footer align="center">
+        <p>Copyright &copy, Cutcy 2020</p>
+    </footer>
 
 {% endblock %}

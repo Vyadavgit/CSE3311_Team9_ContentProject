@@ -4,6 +4,18 @@ from .models import Customer
 from django.contrib.auth.models import Group
 
 
+# def users_profile(sender, instance, created, **kwargs):
+#     if created:
+#         group = Group.objects.get(name='Viewer')
+#         instance.groups.add(group)
+#
+#         Customer.objects.create(
+#             user=instance,
+#             first_name=instance.first_name,
+#             last_name=instance.last_name,
+#             email=instance.email
+#         )
+
 def users_profile(sender, instance, created, **kwargs):
     if created:
         group = Group.objects.get(name='Viewer')

@@ -70,7 +70,9 @@ def logoutFn(request):
 # @allowed_users(allowed_roles=['Subscriber'])
 # @permitted_only
 def viewDashboard(request):
-    return render(request, 'accounts/dashboard.html')
+    files = File.objects.all()
+    context = {'files': files}
+    return render(request, 'accounts/dashboard.html', context)
 
 
 @login_required(login_url='login')
@@ -100,3 +102,83 @@ def editProfilePage(request):
         else:
             messages.warning(request, 'PLease enter valid information following specified formats.')
     return render(request, 'accounts/editProfilePage.html', context)
+
+
+@login_required(login_url='login')
+def uploadVideoPage(request):
+    if request.user.is_authenticated:
+        current_user = request.user
+
+    form = VideoUploadForm()
+
+    if request.method == 'POST':
+        form = VideoUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Video uploaded successfully!")
+            return redirect('upload_video')
+        else:
+            messages.warning(request, 'Error uploading file!')
+
+    context = {'form': form}
+    return render(request, 'accounts/uploadVideoPage.html', context)
+
+
+@login_required(login_url='login')
+def viewMyContentsPage(request):
+    if request.user.is_authenticated:
+        current_user = request.user
+
+        current_customer = Customer.objects.get(user=current_user)
+        files = File.objects.filter(customer=current_customer)
+        context = {'files': files}
+    return render(request, 'accounts/viewMyContentPage.html', context)
+
+
+@login_required(login_url='login')
+def comedyCategoryPage(request):
+    files = File.objects.filter(category='Comedy')
+    context = {'files': files}
+    return render(request, 'accounts/comedyCategoryPage.html', context)
+
+
+@login_required(login_url='login')
+def fitnessCategoryPage(request):
+    files = File.objects.filter(category='Fitness')
+    context = {'files': files}
+    return render(request, 'accounts/fitnessCategoryPage.html', context)
+
+
+@login_required(login_url='login')
+def cookingCategoryPage(request):
+    files = File.objects.filter(category='Cooking')
+    context = {'files': files}
+    return render(request, 'accounts/cookingCategoryPage.html', context)
+
+
+@login_required(login_url='login')
+def entertainmentCategoryPage(request):
+    files = File.objects.filter(category='Entertainment')
+    context = {'files': files}
+    return render(request, 'accounts/entertainmentCategoryPage.html', context)
+
+
+@login_required(login_url='login')
+def technologyCategoryPage(request):
+    files = File.objects.filter(category='Technology')
+    context = {'files': files}
+    return render(request, 'accounts/technologyCategoryPage.html', context)
+
+
+@login_required(login_url='login')
+def musicCategoryPage(request):
+    files = File.objects.filter(category='Music')
+    context = {'files': files}
+    return render(request, 'accounts/musicCategoryPage.html', context)
+
+
+@login_required(login_url='login')
+def otherCategoryPage(request):
+    files = File.objects.filter(category='Other')
+    context = {'files': files}
+    return render(request, 'accounts/otherCategoryPage.html', context)

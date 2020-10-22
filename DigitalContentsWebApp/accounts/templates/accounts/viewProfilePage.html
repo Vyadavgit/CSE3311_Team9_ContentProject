@@ -21,6 +21,18 @@
                     <img src="{{request.user.customer.profile_picture.url}}"/>
                 </div>
             </div>
+
+
+            <div class="col-md-4" align="center">
+                <br><br>
+                <video width='450' height='200' controls>
+                    <source src="{{request.user.customer.videofile.url}}" type='video/mp4'>
+                    Your browser does not support the video tag.
+                </video>
+                <br><br>
+            </div>
+
+
             <div class="col-md-6">
                 <div class="profile-head">
                     <h5>
@@ -48,6 +60,7 @@
                     <p>SKILLS</p>
                     <a href="">Entertainer</a><br/>
                 </div>
+
             </div>
             <div class="col-md-8">
                 <div class="tab-content profile-tab" id="myTabContent">
@@ -121,4 +134,3 @@
 </div>
 </body>
 </html>
-

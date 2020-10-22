@@ -34,8 +34,11 @@ def allowed_users(allowed_roles=[]):
 
     return decorator
 
+
 # todo this function will be used later when allowing only subscriber to access some of the features. same for other
-#  permitted users
+#  permitted users, note: groups have been manually created in database, however, later at first use group =
+#  Group.objects.create(name='Viewer') to create new group directly through your code and follow instructions below
+#  make changes to function below accordingly [Plan as of now]
 
 # def permitted_only(view_func):
 #     def wrapper_function(request, *args, **kwargs):
