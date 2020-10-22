@@ -70,7 +70,9 @@ def logoutFn(request):
 # @allowed_users(allowed_roles=['Subscriber'])
 # @permitted_only
 def viewDashboard(request):
-    return render(request, 'accounts/dashboard.html')
+    files = File.objects.all()
+    context = {'files': files}
+    return render(request, 'accounts/dashboard.html', context)
 
 
 @login_required(login_url='login')
@@ -129,15 +131,54 @@ def viewMyContentsPage(request):
 
         current_customer = Customer.objects.get(user=current_user)
         files = File.objects.filter(customer=current_customer)
-        context = {'files': files, 'current_customer': current_customer}
-
+        context = {'files': files}
     return render(request, 'accounts/viewMyContentPage.html', context)
 
-#todo will be done soon
-# @login_required(login_url='login')
-# def ComedyVideoPage(request):
-#     if request.user.is_authenticated:
-#         files = File.objects.filter(category='Technology')
-#         context = {'files': files}
-#     return render(request, 'accounts/ComedyVideoPage.html', context)
 
+@login_required(login_url='login')
+def comedyCategoryPage(request):
+    files = File.objects.filter(category='Comedy')
+    context = {'files': files}
+    return render(request, 'accounts/comedyCategoryPage.html', context)
+
+
+@login_required(login_url='login')
+def fitnessCategoryPage(request):
+    files = File.objects.filter(category='Fitness')
+    context = {'files': files}
+    return render(request, 'accounts/fitnessCategoryPage.html', context)
+
+
+@login_required(login_url='login')
+def cookingCategoryPage(request):
+    files = File.objects.filter(category='Cooking')
+    context = {'files': files}
+    return render(request, 'accounts/cookingCategoryPage.html', context)
+
+
+@login_required(login_url='login')
+def entertainmentCategoryPage(request):
+    files = File.objects.filter(category='Entertainment')
+    context = {'files': files}
+    return render(request, 'accounts/entertainmentCategoryPage.html', context)
+
+
+@login_required(login_url='login')
+def technologyCategoryPage(request):
+    files = File.objects.filter(category='Technology')
+    context = {'files': files}
+    return render(request, 'accounts/technologyCategoryPage.html', context)
+
+
+@login_required(login_url='login')
+def musicCategoryPage(request):
+    files = File.objects.filter(category='Music')
+    context = {'files': files}
+    return render(request, 'accounts/musicCategoryPage.html', context)
+
+
+@login_required(login_url='login')
+def otherCategoryPage(request):
+    files = File.objects.filter(category='Other')
+    context = {'files': files}
+    return render(request, 'accounts/otherCategoryPage.html', context)

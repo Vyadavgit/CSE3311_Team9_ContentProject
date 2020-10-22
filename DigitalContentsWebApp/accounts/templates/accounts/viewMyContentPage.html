@@ -1,33 +1,38 @@
+{% extends 'accounts/main.html' %}
+
+{% block content %}
+
 {% load static %}
 
-<!DOCTYPE html>
-<html>
+<h5>My Contents</h5>
 
-<head>
-    <h1 align="center">Comedy Videos</h1>
-</head>
-
-<body style="background: -webkit-linear-gradient(left, #3931af, #00c6ff);">
-
-<div>
+<div class="row">
     {% for file in files %}
-    <div class="col-md-4" align="center">
-        <br><br>
-        <video width='900' controls>
+    {% if forloop.counter0|divisibleby:2 %}
+</div><div class="row">
+    {% endif %}
+
+    {% if forloop.counter0|divisibleby:2 %}
+    <div class="col" align="center">
+        <br>
+        <video width='500' height='300' controls>
             <source src="{{file.upload_video.url}}" type='video/mp4'>
             Your browser does not support the video tag.
         </video>
         <div>{{ file.description }}</div>
-        <br><br>
+        <br>
     </div>
+    {% else %}
+    <div class="col" align="center">
+        <br>
+        <video width='500' height='300' controls>
+            <source src="{{file.upload_video.url}}" type='video/mp4'>
+            Your browser does not support the video tag.
+        </video>
+        <div>{{ file.description }}</div>
+        <br>
+    </div>
+    {% endif %}
     {% endfor %}
 </div>
-<div align="center">
-    <a class="profile-edit-btn" name="btnAddMore" href="{% url 'dashboard' %}"><b>Back</b></a>
-</div>
-</body>
-</html>
-
-
-
-
+{% endblock %}

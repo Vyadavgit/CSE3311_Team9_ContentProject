@@ -4,13 +4,13 @@ this sets up the sidebar-->
 <!-- Sidebar Holder -->
 <nav id="sidebar">
     <div class="sidebar-header">
-        <h3>Welcome</h3>
-        <strong>Welcome</strong>
+        <h3>Cutcy</h3>
+        <strong>Cutcy</strong>
     </div>
 
     <ul class="list-unstyled components">
         <li>
-            <a href="#">
+            <a href="{% url 'dashboard' %}">
                 <i class="fas fa-home"></i>
                 Home
             </a>
@@ -24,30 +24,30 @@ this sets up the sidebar-->
             </a>
             <ul class="collapse list-unstyled" id="pageSubmenu">
                 <li>
-                    <a href="#">Comedy</a>
+                    <a href="{% url 'comedy_content' %}">Comedy</a>
                 </li>
                 <li>
-                    <a href="#">Fitness</a>
+                    <a href="{% url 'fitness_content' %}">Fitness</a>
                 </li>
                 <li>
-                    <a href="#">Cooking</a>
+                    <a href="{% url 'cooking_content' %}">Cooking</a>
                 </li>
                 <li>
-                    <a href="#">Entertainment</a>
+                    <a href="{% url 'entertainment_content' %}">Entertainment</a>
                 </li>
                 <li>
-                    <a href="#">Technology</a>
+                    <a href="{% url 'technology_content' %}">Technology</a>
                 </li>
                 <li>
-                    <a href="#">Music</a>
+                    <a href="{% url 'music_content' %}">Music</a>
                 </li>
                 <li>
-                    <a href="#">Others</a>
+                    <a href="{% url 'other_content' %}">Others</a>
                 </li>
             </ul>
         </li>
         <li>
-            <a href="#">
+            <a href="{% url 'my_contents' %}">
                 <i class="fas fa-image"></i>
                 My Posts
             </a>

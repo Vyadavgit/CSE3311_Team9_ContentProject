@@ -28,7 +28,13 @@ urlpatterns = [
     path('upload_video/', views.uploadVideoPage, name="upload_video"),
     path('my_contents/', views.viewMyContentsPage, name="my_contents"),
 
-    # path('comedy_content/', views.ComedyVideoPage, name="comedy_content"),
+    path('comedy_content/', views.comedyCategoryPage, name="comedy_content"),
+    path('fitness_content/', views.fitnessCategoryPage, name="fitness_content"),
+    path('cooking_content/', views.cookingCategoryPage, name="cooking_content"),
+    path('entertainment_content/', views.entertainmentCategoryPage, name="entertainment_content"),
+    path('technology_content/', views.technologyCategoryPage, name="technology_content"),
+    path('music_content/', views.musicCategoryPage, name="music_content"),
+    path('other_content/', views.otherCategoryPage, name="other_content"),
 
 ]
 

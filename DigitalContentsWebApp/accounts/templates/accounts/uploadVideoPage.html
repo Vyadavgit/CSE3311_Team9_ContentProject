@@ -1,41 +1,50 @@
+
+
 {% load static %}
 
 <!DOCTYPE html>
 <html>
 
 <head>
-    <h1 align="center">Upload video page</h1>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="{% static '/css/editProfilePage.css' %}">
 </head>
 
-<body style="background: -webkit-linear-gradient(left, #3931af, #00c6ff);">
-
-
-<form method="post" action="" enctype="multipart/form-data" align="center">
+<body>
+<div class="container emp-profile" align="center">
+    <h3>Upload Video</h3>
+    <br><br>
+<form method="post" action="" enctype="multipart/form-data">
     {% csrf_token %}
     {% for field in form %}
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-5">
             <label>{{ field.label }}</label>
         </div>
-        <div class="col-md-10">
+        <div class="col-md-1">
             <p>{{field}}</p>
         </div>
     </div>
+    <br><br>
     {% endfor %}
 
     <input type="Submit" name="Upload">
     <a class="profile-edit-btn" name="btnAddMore" href="{% url 'dashboard' %}">Back</a>
 </form>
 
-
+<br><br>
 <div align="center">
     {% for message in messages %}
     <p id="messages">{{message}}</p>
     {% endfor %}
 </div>
-
+</div>
 </body>
 </html>
+
+
 
 
 
