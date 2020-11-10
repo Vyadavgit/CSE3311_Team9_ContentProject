@@ -1,0 +1,100 @@
+/*credit/Citation: https://bootsnipp.com/snippets/K0ZmK*/
+/*credit/Citation: https://www.w3schools.com/howto/howto_css_login_form.asp*/
+
+@import "https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700";
+
+body{
+    background: -webkit-linear-gradient(left, #3931af, #00c6ff);
+}
+
+.box {
+    top: 50%;
+    left: 50%;
+    position: absolute;
+    background: #F8F8F8;
+    box-sizing: border-box;
+    transform: translate(-50%, -50%);
+    height: 600px;
+    width: 370px;
+    border: 1px #000 solid;
+    padding: 70px 30px;
+    box-shadow: 0 0 50px #808080;
+    border-radius: 15px;
+}
+
+.box input{
+
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 0;
+  box-sizing: border-box;
+  background: #F8F8F8;
+  border-bottom: 1px solid #000;
+  text-align: left;
+  position: center
+  color: #fff;
+  font-family: 'Poppins', sans-serif;
+
+}
+
+.box h2{
+  display: inline-block:
+  position: relative;
+    text-align: center;
+    color: #000;
+    margin-top: 0;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 300;
+}
+
+.box input[type = "submit"]{
+  display: inline-block:
+  position: relative;
+  background-color: #4CAF50;
+  color: white;
+  padding: 14px 20px;
+  margin-top: 40px;
+  margin-left: 75px;
+  border: none;
+  cursor: pointer;
+  width: 50%;
+  font-size: 14px;
+  margin-bottom:30px;
+  font-family: 'Poppins', sans-serif;
+    text-align: center;
+
+}
+
+.box input[type = "submit"]:hover{
+  box-shadow: 0 0 6px #000;
+}
+
+.box a{
+  font-size: 18px;
+  display: inline-block:
+  position: relative;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  line-height: 30px;
+  font-weight: bold;
+  text-decoration: none;
+  font-weight: 300;
+  margin-left: 40px;
+}
+
+.box a:link {
+              color: #000080;
+
+            }
+
+#a{
+  margin-left: 10px;
+}
+
+#a:hover{
+  text-decoration: underline;
+}
+

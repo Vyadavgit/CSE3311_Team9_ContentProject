@@ -1,6 +1,8 @@
 from django.urls import path
 from . import views
 from django.contrib.auth import views as auth_views
+from django.urls import path
+from django.conf import settings
 
 urlpatterns = [
     path('', views.homePage, name="home"),
@@ -35,6 +37,21 @@ urlpatterns = [
     path('technology_content/', views.technologyCategoryPage, name="technology_content"),
     path('music_content/', views.musicCategoryPage, name="music_content"),
     path('other_content/', views.otherCategoryPage, name="other_content"),
+
+    path('add_content_viewers/<int:pk>/', views.contentViewersCount, name="add_content_viewers"),
+
+    path('room_chat/', views.roomShowChatHome, name='room_chat'),
+    path('room_chat/room/<str:room_name>/<str:person_name>', views.roomShowChatPage, name='room_showchat'),
+
+    path('customers_list/', views.customersListPage, name='customers_list'),
+    path('chat/', views.ShowChatHome, name='chat'),
+    # path('chat/room/<str:room_name>/<str:person_name>', views.ShowChatPage, name='showchat'),
+    path('showchat/<str:pk>/', views.ShowChatPage, name='showchat'),
+
+    path('upgrade/', views.upgrade, name="upgrade"),
+    path('payment_method/', views.payment_method, name="payment_method"),
+    path('card/', views.card, name="card"),
+    path('stripe_webhooks', views.stripe_webhooks, name="stripe_webhooks"),
 
 ]
 

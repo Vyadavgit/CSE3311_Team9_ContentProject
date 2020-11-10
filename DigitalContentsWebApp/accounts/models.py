@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+import datetime
+from datetime import date
 
 # Create your models here.
 class Customer(models.Model):
@@ -14,6 +15,7 @@ class Customer(models.Model):
     phone_number = models.CharField(max_length=250, null=True)
     profession = models.CharField(max_length=250, null=True)
     videofile = models.FileField(default="video_null.mp4", null=True, blank=True)
+    # chat_list = models.ForeignKey(Chat, null=True, blank=True, on_delete=models.CASCADE)
 
     def __str__(self):
         if self.first_name and self.last_name:
@@ -21,6 +23,25 @@ class Customer(models.Model):
         else:
             identity = str(self.id)
         return identity
+
+    def set_paid_until(self, date_or_timestamp):
+        if isinstance(date_or_timestamp, int):
+            # if input is int date_or_timestamp
+            paid_until = date.fromtimestamp(date_or_timestamp)
+        elif isinstance(date_or_timestamp, str):
+            # if input is string date_or_timestamp
+            paid_until = date.fromtimestamp(int(date_or_timestamp))
+        else:
+            paid_until = date_or_timestamp
+
+        self.paid_until = paid_until
+        self.save()
+
+    def has_paid(self, current_date = datetime.date.today()):
+        if self.paid_until is None:
+            return False
+
+        return current_date < self.paid_until
 
 
 class File(models.Model):
@@ -33,6 +54,17 @@ class File(models.Model):
     category = models.CharField(max_length=25, choices=CATEGORY_CHOICES, null=True, blank=True)
     upload_video = models.FileField(null=True, blank=True)
     upload_date_and_time = models.DateTimeField(auto_now_add=True, null=True)
+    premium = models.BooleanField(default=False, blank=True)
+    content_viewers = models.ManyToManyField(User)
 
     def __str__(self):
         return self.description
+
+# class Chat(models.Model):
+#     awating_chat_list = models.ManyToManyField(User)
+#
+#     def __str__(self):
+#         return str(self.id)
+
+
+

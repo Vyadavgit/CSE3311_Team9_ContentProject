@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -19,7 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '**********************'
+SECRET_KEY = '******************************************'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -29,6 +30,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'channels',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -76,22 +79,22 @@ WSGI_APPLICATION = 'DigitalContentsWebApp.wsgi.application'
 
 # SQLITE DATABASE
 # DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
-# }
+#      'default': {
+#          'ENGINE': 'django.db.backends.sqlite3',
+#          'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#      }
+#  }
 
-# POSTGRES DATABASE LOCAL
+POSTGRES DATABASE LOCAL
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': '*******',
-        'USER': 'postgres',
-        'PASSWORD': '*****',
-        'HOST': 'localhost',
-        'PORT': '5432'
-    }
+   'default': {
+       'ENGINE': 'django.db.backends.postgresql',
+       'NAME': '*******',
+       'USER': 'postgres',
+       'PASSWORD': '*****',
+       'HOST': 'localhost',
+       'PORT': '5432'
+   }
 }
 
 # POSTGRES AWS RDS DATABASE LIVE
@@ -156,15 +159,32 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'digitalcontentswebapp2020@gmail.com'
-EMAIL_HOST_PASSWORD = '******'
+EMAIL_HOST_PASSWORD = '******************************************'
 
-# S3 BUCKET CONFIGURATIONS
-AWS_ACCESS_KEY_ID = '**************'
-AWS_SECRET_ACCESS_KEY = '**************'
-AWS_STORAGE_BUCKET_NAME = '**************'
+# # S3 BUCKET CONFIGURATIONS
+# AWS_ACCESS_KEY_ID = '******************************************'
+# AWS_SECRET_ACCESS_KEY = '******************************************'
+# AWS_STORAGE_BUCKET_NAME = '******************************************'
+#
+# # django storages S3 bucket https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html
+# AWS_S3_FILE_OVERWRITE = False
+# AWS_DEFAULT_ACL = None
+# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+# STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
-# django storages S3 bucket https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html
-AWS_S3_FILE_OVERWRITE = False
-AWS_DEFAULT_ACL = None
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+ASGI_APPLICATION= "DigitalContentsWebApp.routingg.application"
+CHANNEL_LAYERS={
+    "default":{
+        "BACKEND":"channels.layers.InMemoryChannelLayer"
+    }
+}
+
+#STRIPE KEYS
+STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY','sk_test_51HhRTiCRO6XnZET9X7XlsOMRvVuMMbTTc5yzqgFY7QFoTEFYVsDf9RcQ5wAWgpSvSkq2KXRLxBV9N2lXV5n7lP4E00CGKKgxhR')
+STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY','pk_test_51HhRTiCRO6XnZET9k6QykygfHEQ3WcijcQcCXBpp2s0zuUurzPCV5ixKMyQl04LLNOnc0STJoYcybbeFYzzrTvFS00MGzJVOCe')
+STRIPE_PLAN_MONTHLY_ID = os.environ.get('STRIPE_PLAN_MONTHLY_ID','price_1HhRU7CRO6XnZET9Jlx4Q5ga')
+STRIPE_PLAN_ANNUAL_ID = os.environ.get('STRIPE_PLAN_ANNUAL_ID','price_1HhRUKCRO6XnZET9T4yw1YfP')
+STRIPE_WEBHOOK_SIGNING_KEY = os.environ.get('STRIPE_WEBHOOK_SIGNING_KEY','whsec_oTMaXv2sN3H1yalotf12aEdR8fn8STgB')
+
+#PAYPAL_KEYS
