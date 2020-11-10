@@ -7,12 +7,21 @@ from django.contrib import messages
 from django.contrib.auth.models import Group
 
 # Create your views here.
+from django.shortcuts import get_object_or_404
 from .forms import UserRegistrationForm
 # from .decorators import permitted_only
 from .decorators import unauthenticated_user, allowed_users
 
 from .models import *
 from .forms import *
+
+import stripe
+from django.conf import settings
+from accounts.stripe import (VideosPlan, set_paid_until)
+from django.http import HttpResponse
+
+# Defining API key
+API_KEY = settings.STRIPE_SECRET_KEY
 
 
 @unauthenticated_user
@@ -70,8 +79,9 @@ def logoutFn(request):
 # @allowed_users(allowed_roles=['Subscriber'])
 # @permitted_only
 def viewDashboard(request):
-    files = File.objects.all()
-    context = {'files': files}
+    premium_files = File.objects.filter(premium=True)
+    freemium_files = File.objects.filter(premium=False)
+    context = {'freemium_files': freemium_files, 'premium_files': premium_files}
     return render(request, 'accounts/dashboard.html', context)
 
 
@@ -130,55 +140,275 @@ def viewMyContentsPage(request):
         current_user = request.user
 
         current_customer = Customer.objects.get(user=current_user)
-        files = File.objects.filter(customer=current_customer)
-        context = {'files': files}
-    return render(request, 'accounts/viewMyContentPage.html', context)
+        premium_files = File.objects.filter(customer=current_customer, premium=True)
+        freemium_files = File.objects.filter(customer=current_customer, premium=False)
+        content_category = 'My Contents'
+        context = {'premium_files': premium_files, 'freemium_files': freemium_files,
+                   'content_category': content_category}
+        return render(request, 'accounts/viewMyContentPage.html', context)
 
 
 @login_required(login_url='login')
 def comedyCategoryPage(request):
-    files = File.objects.filter(category='Comedy')
-    context = {'files': files}
-    return render(request, 'accounts/comedyCategoryPage.html', context)
+    premium_files = File.objects.filter(category='Comedy', premium=True)
+    freemium_files = File.objects.filter(category='Comedy', premium=False)
+    content_category = 'Comedy Contents'
+    context = {'premium_files': premium_files, 'freemium_files': freemium_files, 'content_category': content_category}
+    return render(request, 'accounts/contentCategoriesPage.html', context)
 
 
 @login_required(login_url='login')
 def fitnessCategoryPage(request):
-    files = File.objects.filter(category='Fitness')
-    context = {'files': files}
-    return render(request, 'accounts/fitnessCategoryPage.html', context)
+    premium_files = File.objects.filter(category='Fitness', premium=True)
+    freemium_files = File.objects.filter(category='Fitness', premium=False)
+    content_category = 'Fitness Contents'
+    context = {'premium_files': premium_files, 'freemium_files': freemium_files, 'content_category': content_category}
+    return render(request, 'accounts/contentCategoriesPage.html', context)
 
 
 @login_required(login_url='login')
 def cookingCategoryPage(request):
-    files = File.objects.filter(category='Cooking')
-    context = {'files': files}
-    return render(request, 'accounts/cookingCategoryPage.html', context)
+    premium_files = File.objects.filter(category='Cooking', premium=True)
+    freemium_files = File.objects.filter(category='Cooking', premium=False)
+    content_category = 'Cooking Contents'
+    context = {'premium_files': premium_files, 'freemium_files': freemium_files, 'content_category': content_category}
+    return render(request, 'accounts/contentCategoriesPage.html', context)
 
 
 @login_required(login_url='login')
 def entertainmentCategoryPage(request):
-    files = File.objects.filter(category='Entertainment')
-    context = {'files': files}
-    return render(request, 'accounts/entertainmentCategoryPage.html', context)
+    premium_files = File.objects.filter(category='Entertainment', premium=True)
+    freemium_files = File.objects.filter(category='Entertainment', premium=False)
+    content_category = 'Entertainment Contents'
+    context = {'premium_files': premium_files, 'freemium_files': freemium_files, 'content_category': content_category}
+    return render(request, 'accounts/contentCategoriesPage.html', context)
 
 
 @login_required(login_url='login')
 def technologyCategoryPage(request):
-    files = File.objects.filter(category='Technology')
-    context = {'files': files}
-    return render(request, 'accounts/technologyCategoryPage.html', context)
+    premium_files = File.objects.filter(category='Technology', premium=True)
+    freemium_files = File.objects.filter(category='Technology', premium=False)
+    content_category = 'Technology Contents'
+    context = {'premium_files': premium_files, 'freemium_files': freemium_files, 'content_category': content_category}
+    return render(request, 'accounts/contentCategoriesPage.html', context)
 
 
 @login_required(login_url='login')
 def musicCategoryPage(request):
-    files = File.objects.filter(category='Music')
-    context = {'files': files}
-    return render(request, 'accounts/musicCategoryPage.html', context)
+    premium_files = File.objects.filter(category='Music', premium=True)
+    freemium_files = File.objects.filter(category='Music', premium=False)
+    content_category = 'Music Contents'
+    context = {'premium_files': premium_files, 'freemium_files': freemium_files, 'content_category': content_category}
+    return render(request, 'accounts/contentCategoriesPage.html', context)
 
 
 @login_required(login_url='login')
 def otherCategoryPage(request):
-    files = File.objects.filter(category='Other')
-    context = {'files': files}
-    return render(request, 'accounts/otherCategoryPage.html', context)
+    premium_files = File.objects.filter(category='Other', premium=True)
+    freemium_files = File.objects.filter(category='Other', premium=False)
+    content_category = 'Other Contents'
+    context = {'premium_files': premium_files, 'freemium_files': freemium_files, 'content_category': content_category}
+    return render(request, 'accounts/contentCategoriesPage.html', context)
+
+
+def contentViewersCount(request, pk):
+    file = get_object_or_404(File, pk=pk)
+    if request.user not in file.content_viewers.all():
+        file.content_viewers.add(request.user)
+    context = {'file': file}
+    return render(request, 'accounts/videoPlayerPage.html', context)
+
+
+def roomShowChatHome(request):
+    if request.user.is_authenticated:
+        current_user = request.user
+        customer = Customer.objects.get(user=request.user)
+    context = {'person_name': customer}
+    return render(request, "accounts/room_chat_home.html", context)
+
+
+def roomShowChatPage(request, room_name, person_name):
+    if request.user.is_authenticated:
+        current_user = request.user
+
+        customer = Customer.objects.get(user=current_user)
+    context = {'customer': customer}
+    return render(request, "accounts/room_chat_screen.html", {'room_name': room_name, 'person_name': person_name})
+
+
+def customersListPage(request):
+    customers = Customer.objects.all()
+    sender_id = request.user.id
+    context = {'customers': customers, 'sender_id': sender_id}
+    return render(request, 'accounts/customersListPage.html', context)
+
+
+def ShowChatHome(request):
+    if request.user.is_authenticated:
+        current_user = request.user
+        customer = Customer.objects.get(user=request.user)
+    context = {'person_name': customer}
+    return render(request, context)
+
+
+def ShowChatPage(request, pk):
+    # chat_recipient = get_object_or_404(Customer, id=pk)
+    # print(chat_recipient)
+    # print(request.user)
+
+    # if request.user not in chat_recipient.chat_list.awating_chat_list.all():
+    # chat_recipient.chat_list.awating_chat_list.add(request.user)
+
+    room_name = pk
+    person_name = request.user.first_name
+
+    context = {'room_name': room_name, 'person_name': person_name}
+    return render(request, "accounts/chat_screen.html", context)
+    # return HttpResponse("Chat page "+room_name+""+person_name)
+
+
+# After the payment is done, payment gateway sends djnago an HHTP POST request with details of completed transactions.
+# Stripe calls http post request "webhooks".
+# Add basic validation to make sure this POST comes from Stripe. Do this by adding Http header which contains string called signature.
+def stripe_webhooks(request):
+    payload = request.body
+    sig_header = request.META['HTTP_STRIPE_SIGNATURE']
+    event = None
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, settings.STRIPE_WEBHOOK_SIGNING_KEY
+        )
+    except ValueError:
+        # Invalid payload
+        return HttpResponse(status=400)
+    except stripe.error.SignatureVerificationError:
+        # Invalid signature
+        return HttpResponse(status=400)
+
+    # Handle the event
+    if event.type == 'charge.succeeded':
+        # object has  payment_intent attr
+        set_paid_until(event.data.object)
+    # return status should be 200 or else stripe will keep on posting the event
+    return HttpResponse(status=200)
+
+
+@login_required(login_url='login')
+def upgrade(request):
+    return render(request, 'accounts/upgrade.html')
+
+
+@login_required(login_url='login')
+def payment_method(request):
+    stripe.api_key = API_KEY
+    plan = request.POST.get('plan', 'm')
+    automatic = request.POST.get('automatic', 'on')
+    payment_method = request.POST.get('payment_method', 'card')
+    context = {}
+
+    plan_inst = VideosPlan(plan_id=plan)
+
+    # Instantiating Payment Intent object.
+    # It contains temporary secret key which is used for client side JS to render the card
+    payment_intent = stripe.PaymentIntent.create(
+        amount=plan_inst.amount,
+        currency=plan_inst.currency,
+        payment_method_types=['card']
+    )
+
+    if payment_method == 'card':
+        context['secret_key'] = payment_intent.client_secret
+        context['STRIPE_PUBLISHABLE_KEY'] = settings.STRIPE_PUBLISHABLE_KEY
+        context['customer_email'] = request.user.email
+        # Payment Intent requires a payment method. Set an existing payment method on the PaymentIntent.
+        # So, passing PI to context
+        context['payment_intent_id'] = payment_intent.id
+
+        context['automatic'] = automatic
+        context['stripe_plan_id'] = plan_inst.stripe_plan_id
+        # Now in card.html, create hidden input elements with above 2 values and subscription will work
+
+        return render(request, 'accounts/card.html', context)
+
+
+# Stripe subscription needs a cutomer/subsciber and plan. Customer/subscriber is a new stripe object, we need to create.
+# Plan is a stripe object which has already been created in OG stripe API dashboard.
+@login_required
+def card(request):
+    stripe.api_key = API_KEY
+
+    # Creating payment. It contains subscription and one time payment.
+
+    # Extracting id's and later passing it to context of payment_method
+    payment_intent_id = request.POST['payment_intent_id']
+    payment_method_id = request.POST['payment_method_id']
+
+    # Extracting parameters to make subscription work:- stripe_plan_id and automatic
+    stripe_plan_id = request.POST['stripe_plan_id']
+    automatic = request.POST['automatic']
+
+    if automatic == 'on':
+        # Create Subscriptions and customers
+
+        # Create customers
+        # Subscriber will be identified by email address and should have assoicated PMobject
+        customer = stripe.Customer.create(
+            name=request.user.username,
+            email=request.user.email,
+            payment_method=payment_method_id,
+            invoice_settings={
+                'default_payment_method': payment_method_id
+            }
+        )
+        # create subscription
+        # It shsould be associated with subscriber and plan
+        stripe.Subscription.create(
+            customer=customer.id,
+            items=[
+                {
+                    'plan': stripe_plan_id
+                },
+            ]
+        )
+        # retrieving latest invoice. It contains payment associated.
+        # latest_invoice = stripe.Invoice.retrieve(s.latest_invoice)
+
+        stripe.PaymentIntent.modify(
+            payment_intent_id,
+            payment_method=payment_method_id,
+            customer=customer.id
+        )
+
+        '''After creating customer and subscription, stripe automatically creates an invoice and associates latest invoice
+        with created subscription and this invoice is open and needs to be paid.
+        After subscription is created, we need to extract latest invoice and from that latest invoice we will get a 
+        different payment and we need to confirm new payment intent instead of old PI.'''
+
+        # Confirming payment intent
+        '''ret = stripe.PaymentIntent.confirm(
+            latest_invoice.payment_intent
+        )
+
+        # In case of card requiring 3d secure, the return status of npaymemnt intent confirm will be "requires_action".
+        # Handling this case by displaying this 3d secure template.
+        if ret.status == 'requires_action':
+            # payment intent secret/client secret is retrieved from payment intent
+            pi = stripe.PaymentIntent.retrieve(  # pi = payment intent
+                latest_invoice.payment_intent
+            )
+            context = {}
+
+            context['payment_intent_secret'] = pi.client_secret
+            context['STRIPE_PUBLISHABLE_KEY'] = settings.STRIPE_PUBLISHABLE_KEY
+
+            return render(request, 'accounts/3dsec.html', context)'''
+    else:
+        # One time payment.
+        # Using stripe API, assoicating PIid with PMid
+        stripe.PaymentIntent.modify(
+            payment_intent_id,
+            payment_method=payment_method_id
+        )
+
+    return render(request, 'accounts/thankyou.html')

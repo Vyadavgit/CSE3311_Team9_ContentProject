@@ -1,0 +1,39 @@
+<!-- Source: https://github.com/hackstarsj/simpleDjangoProject.git -->
+
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="{% static '/css/editProfilePage.css' %}">
+</head>
+
+<body>
+
+<div class="container emp-profile" align="center">
+    <h3>Create Chat Room</h3>
+    <br><br><br><br><br>
+
+
+    <input type="text" name="room_name" id="room_name" placeholder="Room Name"><br><br><br>
+    <input type="text" name="person_name" id="person_name" placeholder="Your Name"><br><br><br>
+    <input type="button" class="btn btn-success mb-2" name="button" value="Create Chat Room" id="submit"><br>
+    <a href="{% url 'dashboard' %}">Back</a><br><br><br><br><br><br>
+
+
+    <script>
+    document.querySelector("#submit").onclick=function(e){
+        var roomname=document.querySelector("#room_name").value;
+        var personname=document.querySelector("#person_name").value;
+        window.location.pathname='/room_chat/room/'+roomname+'/'+personname;
+    }
+</script>
+
+</div>
+
+</body>
+</html>
+

@@ -43,3 +43,4 @@ class VideoUploadForm(ModelForm):
     class Meta:
         model = File
         fields = '__all__'
+        exclude = ['content_viewers']

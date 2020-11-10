@@ -4,35 +4,83 @@
 
 {% load static %}
 
-<h5>My Contents</h5>
+<h3 align="center">{{content_category}}</h3>
+<br><br>
+
+{% if premium_files.count != 0 %}
+<h5>Premium Contents</h5>
+{% endif %}
 
 <div class="row">
-    {% for file in files %}
+    {% for file in premium_files %}
     {% if forloop.counter0|divisibleby:2 %}
 </div><div class="row">
-    {% endif %}
-
-    {% if forloop.counter0|divisibleby:2 %}
     <div class="col" align="center">
         <br>
-        <video width='500' height='300' controls>
-            <source src="{{file.upload_video.url}}" type='video/mp4'>
-            Your browser does not support the video tag.
-        </video>
-        <div>{{ file.description }}</div>
+        <a href = "{% url 'add_content_viewers' file.pk %}">
+            <video  width='500' height='300' controls >
+                <source src="{{file.upload_video.url}}" type='video/mp4'>
+                Your browser does not support the video tag.
+            </video>
+        </a>
+        <div><p style="color:black;">Title: {{ file.description }} Total views: {{file.content_viewers.count}}</p></div>
         <br>
     </div>
     {% else %}
     <div class="col" align="center">
         <br>
-        <video width='500' height='300' controls>
-            <source src="{{file.upload_video.url}}" type='video/mp4'>
-            Your browser does not support the video tag.
-        </video>
-        <div>{{ file.description }}</div>
+        <a href = "{% url 'add_content_viewers' file.pk %}">
+            <video  width='500' height='300' controls >
+                <source src="{{file.upload_video.url}}" type='video/mp4'>
+                Your browser does not support the video tag.
+            </video>
+        </a>
+        <div><p style="color:black;">Title: {{ file.description }} Total views: {{file.content_viewers.count}}</p></div>
         <br>
     </div>
     {% endif %}
     {% endfor %}
 </div>
+
+
+
+{% if freemium_files.count != 0 %}
+<h5>Freemium Contents</h5>
+{% endif %}
+
+<div class="row">
+    {% for file in freemium_files %}
+    {% if forloop.counter0|divisibleby:2 %}
+</div><div class="row">
+    <div class="col" align="center">
+        <br>
+        <a href = "{% url 'add_content_viewers' file.pk %}">
+            <video  width='500' height='300' controls >
+                <source src="{{file.upload_video.url}}" type='video/mp4'>
+                Your browser does not support the video tag.
+            </video>
+        </a>
+        <div><p style="color:black;">Title: {{ file.description }} Total views: {{file.content_viewers.count}}</p></div>
+        <br>
+    </div>
+    {% else %}
+    <div class="col" align="center">
+        <br>
+        <a href = "{% url 'add_content_viewers' file.pk %}">
+            <video  width='500' height='300' controls >
+                <source src="{{file.upload_video.url}}" type='video/mp4'>
+                Your browser does not support the video tag.
+            </video>
+        </a>
+        <div><p style="color:black;">Title: {{ file.description }} Total views: {{file.content_viewers.count}}</p></div>
+        <br>
+    </div>
+    {% endif %}
+    {% endfor %}
+</div>
+
+<footer align="center">
+    <p>Copyright &copy, Cutcy 2020</p>
+</footer>
+
 {% endblock %}

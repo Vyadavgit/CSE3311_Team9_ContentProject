@@ -1,0 +1,15 @@
+{% extends 'accounts/main.html' %}
+
+{% block content %}
+
+{% load static %}
+
+<h4>Available chats</h4>
+<br>
+<div>
+    {% for customer in customers %}
+    <br>
+    <div><button type="submit" class="btn btn-success mb-2"> <a href="{% url 'showchat' 'chat_room' %}">{{customer.first_name}}</a></button></div>
+    {% endfor %}
+</div>
+{% endblock %}

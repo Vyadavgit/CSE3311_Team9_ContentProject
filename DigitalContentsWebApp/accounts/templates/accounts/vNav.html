@@ -53,7 +53,13 @@ this sets up the sidebar-->
             </a>
         </li>
         <li>
-            <a href="#">
+            <a href="{% url 'upgrade' %}">
+                <i class="fas fa-hand-point-right"></i>
+                Subscriptions
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'customers_list' %}">
                 <i class="fas fa-paper-plane"></i>
                 Messages
             </a>
