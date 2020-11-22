@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -20,7 +19,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '******************************************'
+SECRET_KEY = '*****************************************'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -40,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'accounts.apps.AccountsConfig',
+    'django_filters',
 
     'storages',
 ]
@@ -78,34 +78,46 @@ WSGI_APPLICATION = 'DigitalContentsWebApp.wsgi.application'
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
 # SQLITE DATABASE
-# DATABASES = {
-#      'default': {
-#          'ENGINE': 'django.db.backends.sqlite3',
-#          'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#      }
-#  }
-
-POSTGRES DATABASE LOCAL
 DATABASES = {
-   'default': {
-       'ENGINE': 'django.db.backends.postgresql',
-       'NAME': '*******',
-       'USER': 'postgres',
-       'PASSWORD': '*****',
-       'HOST': 'localhost',
-       'PORT': '5432'
-   }
-}
+     'default': {
+         'ENGINE': 'django.db.backends.sqlite3',
+         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+     }
+ }
+
+# POSTGRES DATABASE LOCAL
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': '*******',
+#         'USER': '******',
+#         'PASSWORD': '***********',
+#         'HOST': 'localhost',
+#         'PORT': '5432'
+#     }
+# }
+
+# LOCAL POSTGRES DATABASE FOR HOSTING STATIC FILES LOCALLY
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': '********',
+#         'USER': '********',
+#         'PASSWORD': '**********',
+#         'HOST': 'localhost',
+#         'PORT': '5432'
+#     }
+# }
 
 # POSTGRES AWS RDS DATABASE LIVE
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': '******',
-#         'USER': '******',
-#         'PASSWORD': '*******',
+#         'NAME': '**********',
+#         'USER': '***********',
+#         'PASSWORD': '***********',
 #         'HOST': '**********',
-#         'PORT': '*******'
+#         'PORT': '5432'
 #     }
 # }
 
@@ -143,6 +155,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
+# configurations for local storage
 STATIC_URL = '/static/'
 
 MEDIA_URL = '/images/'
@@ -153,38 +166,43 @@ STATICFILES_DIRS = [
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'static/images')
 
+
 # SMTP Configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'digitalcontentswebapp2020@gmail.com'
-EMAIL_HOST_PASSWORD = '******************************************'
+EMAIL_HOST_USER = '***************'
+EMAIL_HOST_PASSWORD = '************'
 
-# # S3 BUCKET CONFIGURATIONS
-# AWS_ACCESS_KEY_ID = '******************************************'
-# AWS_SECRET_ACCESS_KEY = '******************************************'
-# AWS_STORAGE_BUCKET_NAME = '******************************************'
-#
-# # django storages S3 bucket https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html
-# AWS_S3_FILE_OVERWRITE = False
-# AWS_DEFAULT_ACL = None
-# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-# STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+# S3 BUCKET CONFIGURATIONS
+AWS_ACCESS_KEY_ID = '**********************'
+AWS_SECRET_ACCESS_KEY = '***********************'
+AWS_STORAGE_BUCKET_NAME = '****************'
 
+# django storages S3 bucket https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html
+AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL = None
+DEFAULT_FILE_STORAGE = 'DigitalContentsWebApp.custom_storage.MediaStorage'  # stores file to specified directory
+# STATICFILES_STORAGE = 'DigitalContentsWebApp.custom_storage.StaticStorage'  # hosts file from specified directory
 
-ASGI_APPLICATION= "DigitalContentsWebApp.routingg.application"
-CHANNEL_LAYERS={
-    "default":{
-        "BACKEND":"channels.layers.InMemoryChannelLayer"
+# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage' # stores file to s3 bucket directly
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'    # hosts file directly from s3 bucket
+
+ASGI_APPLICATION = "DigitalContentsWebApp.routingg.application"
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
     }
 }
 
-#STRIPE KEYS
-STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY','sk_test_51HhRTiCRO6XnZET9X7XlsOMRvVuMMbTTc5yzqgFY7QFoTEFYVsDf9RcQ5wAWgpSvSkq2KXRLxBV9N2lXV5n7lP4E00CGKKgxhR')
-STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY','pk_test_51HhRTiCRO6XnZET9k6QykygfHEQ3WcijcQcCXBpp2s0zuUurzPCV5ixKMyQl04LLNOnc0STJoYcybbeFYzzrTvFS00MGzJVOCe')
-STRIPE_PLAN_MONTHLY_ID = os.environ.get('STRIPE_PLAN_MONTHLY_ID','price_1HhRU7CRO6XnZET9Jlx4Q5ga')
-STRIPE_PLAN_ANNUAL_ID = os.environ.get('STRIPE_PLAN_ANNUAL_ID','price_1HhRUKCRO6XnZET9T4yw1YfP')
-STRIPE_WEBHOOK_SIGNING_KEY = os.environ.get('STRIPE_WEBHOOK_SIGNING_KEY','whsec_oTMaXv2sN3H1yalotf12aEdR8fn8STgB')
+# STRIPE KEYS
+STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY',
+                                   '**************************************************************')
+STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY',
+                                        '***********************************************************')
+STRIPE_PLAN_MONTHLY_ID = os.environ.get('STRIPE_PLAN_MONTHLY_ID', '*****************************')
+STRIPE_PLAN_ANNUAL_ID = os.environ.get('STRIPE_PLAN_ANNUAL_ID', '**********************************')
+STRIPE_WEBHOOK_SIGNING_KEY = os.environ.get('STRIPE_WEBHOOK_SIGNING_KEY', '*********************************')
 
-#PAYPAL_KEYS
+# PAYPAL_KEYS

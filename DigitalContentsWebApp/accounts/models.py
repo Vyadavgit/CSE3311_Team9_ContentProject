@@ -15,6 +15,8 @@ class Customer(models.Model):
     phone_number = models.CharField(max_length=250, null=True)
     profession = models.CharField(max_length=250, null=True)
     videofile = models.FileField(default="video_null.mp4", null=True, blank=True)
+    video_poster = models.ImageField(default="poster_null.jpg", null=True, blank=True)
+    subscribe = models.BooleanField(default=False, blank=True, null=False)
     # chat_list = models.ForeignKey(Chat, null=True, blank=True, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -50,7 +52,7 @@ class File(models.Model):
                         ('Other', 'Other')]
 
     customer = models.ForeignKey(Customer, null=True, blank=True, on_delete=models.CASCADE)
-    description = models.CharField(max_length=250, null=True)
+    title = models.CharField(max_length=250, null=True)
     category = models.CharField(max_length=25, choices=CATEGORY_CHOICES, null=True, blank=True)
     upload_video = models.FileField(null=True, blank=True)
     upload_date_and_time = models.DateTimeField(auto_now_add=True, null=True)

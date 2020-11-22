@@ -46,7 +46,8 @@ urlpatterns = [
     path('customers_list/', views.customersListPage, name='customers_list'),
     path('chat/', views.ShowChatHome, name='chat'),
     # path('chat/room/<str:room_name>/<str:person_name>', views.ShowChatPage, name='showchat'),
-    path('showchat/<str:pk>/', views.ShowChatPage, name='showchat'),
+    # path('showchat/<Decimal:((sender_id*pk)/(sender_id+pk))>/', views.ShowChatPage, name='showchat'),
+    path('showchat/<int:pk>/', views.ShowChatPage, name='showchat'),
 
     path('upgrade/', views.upgrade, name="upgrade"),
     path('payment_method/', views.payment_method, name="payment_method"),

@@ -4,8 +4,29 @@
 
 {% load static %}
 
+<div class="row">
+    <div class="col-md-3">
+        <!--        <p>{{request.user}}</p>-->
+    </div>
+    <div class="col-md-4">
+        <!--        <p>just to create an extra column</p>-->
+    </div>
+
+    <div class="col-md-5">
+        <form class="form-inline" method="get">
+            {{searchFilter.form}}
+            <!--    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">-->
+            <div class = "col">
+                <button class="btn btn-outline-success my-1 my-sm-0" type="submit">Search</button>
+            </div>
+        </form>
+    </div>
+</div>
+<br>
+
 <h3 align="center">{{content_category}}</h3>
 <br><br>
+
 
 {% if premium_files.count != 0 %}
 <h5>Premium Contents</h5>
@@ -13,36 +34,96 @@
 
 <div class="row">
     {% for file in premium_files %}
-    {% if forloop.counter0|divisibleby:2 %}
-</div><div class="row">
-    <div class="col" align="center">
-        <br>
-        <a href = "{% url 'add_content_viewers' file.pk %}">
-            <video  width='500' height='300' controls >
-                <source src="{{file.upload_video.url}}" type='video/mp4'>
-                Your browser does not support the video tag.
-            </video>
-        </a>
-        <div><p style="color:black;">Title: {{ file.description }} Total views: {{file.content_viewers.count}}</p></div>
-        <br>
-    </div>
-    {% else %}
-    <div class="col" align="center">
-        <br>
-        <a href = "{% url 'add_content_viewers' file.pk %}">
-            <video  width='500' height='300' controls >
-                <source src="{{file.upload_video.url}}" type='video/mp4'>
-                Your browser does not support the video tag.
-            </video>
-        </a>
-        <div><p style="color:black;">Title: {{ file.description }} Total views: {{file.content_viewers.count}}</p></div>
-        <br>
-    </div>
-    {% endif %}
+                {% if forloop.counter0|divisibleby:3 %}
+                    </div><div class="row">
+                        {% if forloop.counter0 == premium_count %}
+                                     <div class="col" align="center">
+                                        <br>
+                                        <a href = "{% url 'add_content_viewers' file.pk %}">
+                                            <video  width='250' height='150' controls>
+                                                <source src="{{file.upload_video.url}}" type='video/mp4'>
+                                                Your browser does not support the video tag.
+                                            </video>
+                                        </a>
+                                        <div>
+                                            <p style="color:black;font-size:13px;font-weight:bold;">"{{ file.title }}" Views: {{file.content_viewers.count}}</p>
+                                        </div>
+                                        <br>
+                                    </div>
+
+                                    <div class="col" align="center">
+                                        <!--<p>An extra column to organize the videos</p>-->
+                                    </div>
+                                    <div class="col" align="center">
+                                        <!--<p>An extra column to organize the videos</p>-->
+                                    </div>
+                        {% else %}
+                                 <div class="col" align="center">
+                                    <br>
+                                    <a href = "{% url 'add_content_viewers' file.pk %}">
+                                        <video  width='250' height='150' controls>
+                                            <source src="{{file.upload_video.url}}" type='video/mp4'>
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    </a>
+                                    <div>
+                                        <p style="color:black;font-size:13px;font-weight:bold;">"{{ file.title }}" Views: {{file.content_viewers.count}}</p>
+                                    </div>
+                                    <br>
+                                </div>
+                        {% endif %}
+
+                {% elif forloop.counter0 == premium_count %}
+                            {% if forloop.counter0|add:2|divisibleby:3 %}
+                                <div class="col" align="center">
+                                    <br>
+                                    <a href = "{% url 'add_content_viewers' file.pk %}">
+                                        <video  width='250' height='150' controls >
+                                            <source src="{{file.upload_video.url}}" type='video/mp4'>
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    </a>
+                                    <div>
+                                        <p style="color:black;font-size:13px;font-weight:bold;">"{{ file.title }}" Views: {{file.content_viewers.count}}</p>
+                                    </div>
+                                    <br>
+                                </div>
+                                <div class="col" align="center">
+                                    <!--<p>An extra column to organize the videos</p>-->
+                                </div>
+                            {% else %}
+                                <div class="col" align="center">
+                                    <br>
+                                    <a href = "{% url 'add_content_viewers' file.pk %}">
+                                        <video  width='250' height='150' controls >
+                                            <source src="{{file.upload_video.url}}" type='video/mp4'>
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    </a>
+                                    <div>
+                                        <p style="color:black;font-size:13px;font-weight:bold;">"{{ file.title }}" Views: {{file.content_viewers.count}}</p>
+                                    </div>
+                                    <br>
+                                </div>
+                            {% endif %}
+
+                {% else %}
+                    <div class="col" align="center">
+                        <br>
+                        <a href = "{% url 'add_content_viewers' file.pk %}">
+                            <video  width='250' height='150' controls >
+                                <source src="{{file.upload_video.url}}" type='video/mp4'>
+                                Your browser does not support the video tag.
+                            </video>
+                        </a>
+                        <div>
+                            <p style="color:black;font-size:13px;font-weight:bold;">"{{ file.title }}" Views: {{file.content_viewers.count}}</p>
+                        </div>
+                        <br>
+                    </div>
+                {% endif %}
     {% endfor %}
 </div>
-
-
 
 {% if freemium_files.count != 0 %}
 <h5>Freemium Contents</h5>
@@ -50,32 +131,94 @@
 
 <div class="row">
     {% for file in freemium_files %}
-    {% if forloop.counter0|divisibleby:2 %}
-</div><div class="row">
-    <div class="col" align="center">
-        <br>
-        <a href = "{% url 'add_content_viewers' file.pk %}">
-            <video  width='500' height='300' controls >
-                <source src="{{file.upload_video.url}}" type='video/mp4'>
-                Your browser does not support the video tag.
-            </video>
-        </a>
-        <div><p style="color:black;">Title: {{ file.description }} Total views: {{file.content_viewers.count}}</p></div>
-        <br>
-    </div>
-    {% else %}
-    <div class="col" align="center">
-        <br>
-        <a href = "{% url 'add_content_viewers' file.pk %}">
-            <video  width='500' height='300' controls >
-                <source src="{{file.upload_video.url}}" type='video/mp4'>
-                Your browser does not support the video tag.
-            </video>
-        </a>
-        <div><p style="color:black;">Title: {{ file.description }} Total views: {{file.content_viewers.count}}</p></div>
-        <br>
-    </div>
-    {% endif %}
+                {% if forloop.counter0|divisibleby:3 %}
+                    </div><div class="row">
+                        {% if forloop.counter0 == freemium_count %}
+                                     <div class="col" align="center">
+                                        <br>
+                                        <a href = "{% url 'add_content_viewers' file.pk %}">
+                                            <video  width='250' height='150' controls>
+                                                <source src="{{file.upload_video.url}}" type='video/mp4'>
+                                                Your browser does not support the video tag.
+                                            </video>
+                                        </a>
+                                        <div>
+                                            <p style="color:black;font-size:13px;font-weight:bold;">"{{ file.title }}" Views: {{file.content_viewers.count}}</p>
+                                        </div>
+                                        <br>
+                                    </div>
+
+                                    <div class="col" align="center">
+                                        <!--<p>An extra column to organize the videos</p>-->
+                                    </div>
+                                    <div class="col" align="center">
+                                        <!--<p>An extra column to organize the videos</p>-->
+                                    </div>
+                        {% else %}
+                                 <div class="col" align="center">
+                                    <br>
+                                    <a href = "{% url 'add_content_viewers' file.pk %}">
+                                        <video  width='250' height='150' controls>
+                                            <source src="{{file.upload_video.url}}" type='video/mp4'>
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    </a>
+                                    <div>
+                                        <p style="color:black;font-size:13px;font-weight:bold;">"{{ file.title }}" Views: {{file.content_viewers.count}}</p>
+                                    </div>
+                                    <br>
+                                </div>
+                        {% endif %}
+
+                {% elif forloop.counter0 == freemium_count %}
+                            {% if forloop.counter0|add:2|divisibleby:3 %}
+                                <div class="col" align="center">
+                                    <br>
+                                    <a href = "{% url 'add_content_viewers' file.pk %}">
+                                        <video  width='250' height='150' controls >
+                                            <source src="{{file.upload_video.url}}" type='video/mp4'>
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    </a>
+                                    <div>
+                                        <p style="color:black;font-size:13px;font-weight:bold;">"{{ file.title }}" Views: {{file.content_viewers.count}}</p>
+                                    </div>
+                                    <br>
+                                </div>
+                                <div class="col" align="center">
+                                    <!--<p>An extra column to organize the videos</p>-->
+                                </div>
+                            {% else %}
+                                <div class="col" align="center">
+                                    <br>
+                                    <a href = "{% url 'add_content_viewers' file.pk %}">
+                                        <video  width='250' height='150' controls >
+                                            <source src="{{file.upload_video.url}}" type='video/mp4'>
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    </a>
+                                    <div>
+                                        <p style="color:black;font-size:13px;font-weight:bold;">"{{ file.title }}" Views: {{file.content_viewers.count}}</p>
+                                    </div>
+                                    <br>
+                                </div>
+                            {% endif %}
+
+                {% else %}
+                    <div class="col" align="center">
+                        <br>
+                        <a href = "{% url 'add_content_viewers' file.pk %}">
+                            <video  width='250' height='150' controls >
+                                <source src="{{file.upload_video.url}}" type='video/mp4'>
+                                Your browser does not support the video tag.
+                            </video>
+                        </a>
+                        <div>
+                            <p style="color:black;font-size:13px;font-weight:bold;">"{{ file.title }}" Views: {{file.content_viewers.count}}</p>
+                        </div>
+                        <br>
+                    </div>
+                {% endif %}
     {% endfor %}
 </div>
 

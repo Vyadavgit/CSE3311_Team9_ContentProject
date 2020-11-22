@@ -4,14 +4,16 @@
 
 {% load static %}
 <div align="center">
-    <video  width='1000' height='550' controls>
+    <video width='1000' height='525' controls autoplay>
     <source src="{{file.upload_video.url}}" type='video/mp4'>
     Your browser does not support the video tag.
 </video>
-    <div><p style="color:black;">Title: {{ file.description }} Total views: {{file.content_viewers.count}}</p></div>
+    <div>
+<!--        <p style="color:black; font-weight:bold;">"{{ file.title }}" Views: {{file.content_viewers.count}}</p>-->
+    </div>
 </div>
 
-<br>
+<br><br>
 <h2>Content Info</h2>
 <br>
             <div>
@@ -30,7 +32,7 @@
                                 <label style="font-weight: bold">Title</label>
                             </div>
                             <div class="col-md-6">
-                                <p style="color:black;">{{file.description}}</p>
+                                <p style="color:black;">{{file.title}}</p>
                             </div>
                         </div>
                         <div class="row">

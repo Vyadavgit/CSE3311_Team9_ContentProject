@@ -14,7 +14,9 @@ from .decorators import unauthenticated_user, allowed_users
 
 from .models import *
 from .forms import *
+from .filters import FileFilter, CustomerFilter
 
+# TODO review these imports
 import stripe
 from django.conf import settings
 from accounts.stripe import (VideosPlan, set_paid_until)
@@ -81,15 +83,32 @@ def logoutFn(request):
 def viewDashboard(request):
     premium_files = File.objects.filter(premium=True)
     freemium_files = File.objects.filter(premium=False)
-    context = {'freemium_files': freemium_files, 'premium_files': premium_files}
-    return render(request, 'accounts/dashboard.html', context)
+
+    premium_count = premium_files.count()-1
+    freemium_count = freemium_files.count()-1
+
+    total_query_files = premium_files | freemium_files
+    searchFilter = FileFilter(request.GET, queryset=total_query_files)
+    total_query_files = searchFilter.qs
+    total_query_files_count = total_query_files.count()-1
+
+    if total_query_files.count() != premium_files.count()+freemium_files.count():
+        context = {'total_query_files': total_query_files, 'searchFilter': searchFilter,
+                   'total_query_files_count': total_query_files_count}
+        return render(request, 'accounts/querySearchList.html', context)
+    else:
+        context = {'freemium_files': freemium_files, 'premium_files': premium_files, 'searchFilter': searchFilter,
+                   'premium_count': premium_count, 'freemium_count': freemium_count}
+        return render(request, 'accounts/dashboard.html', context)
 
 
 @login_required(login_url='login')
 def viewProfilePage(request):
     if request.user.is_authenticated:
-        customer = Customer.objects.get(user=request.user)
-    context = {'customer': customer}
+        curr_customer = Customer.objects.get(user=request.user)
+        contents = File.objects.filter(customer=curr_customer)
+        my_contents_count = contents.count()
+    context = {'curr_customer': curr_customer, 'my_contents_count': my_contents_count}
     return render(request, 'accounts/viewProfilePage.html', context)
 
 
@@ -142,10 +161,23 @@ def viewMyContentsPage(request):
         current_customer = Customer.objects.get(user=current_user)
         premium_files = File.objects.filter(customer=current_customer, premium=True)
         freemium_files = File.objects.filter(customer=current_customer, premium=False)
+
         content_category = 'My Contents'
-        context = {'premium_files': premium_files, 'freemium_files': freemium_files,
-                   'content_category': content_category}
-        return render(request, 'accounts/viewMyContentPage.html', context)
+        premium_count = premium_files.count() - 1
+        freemium_count = freemium_files.count() - 1
+
+        total_query_files = premium_files | freemium_files
+        searchFilter = FileFilter(request.GET, queryset=total_query_files)
+        total_query_files = searchFilter.qs
+
+        if total_query_files.count() == 1:
+            context = {'total_query_files': total_query_files, 'searchFilter': searchFilter}
+            return render(request, 'accounts/querySearchList.html', context)
+        else:
+            context = {'freemium_files': freemium_files, 'premium_files': premium_files,
+                       'content_category': content_category, 'searchFilter': searchFilter,
+                       'premium_count': premium_count, 'freemium_count': freemium_count}
+            return render(request, 'accounts/viewMyContentPage.html', context)
 
 
 @login_required(login_url='login')
@@ -153,8 +185,22 @@ def comedyCategoryPage(request):
     premium_files = File.objects.filter(category='Comedy', premium=True)
     freemium_files = File.objects.filter(category='Comedy', premium=False)
     content_category = 'Comedy Contents'
-    context = {'premium_files': premium_files, 'freemium_files': freemium_files, 'content_category': content_category}
-    return render(request, 'accounts/contentCategoriesPage.html', context)
+
+    premium_count = premium_files.count() - 1
+    freemium_count = freemium_files.count() - 1
+
+    total_query_files = premium_files | freemium_files
+    searchFilter = FileFilter(request.GET, queryset=total_query_files)
+    total_query_files = searchFilter.qs
+
+    if total_query_files.count() == 1:
+        context = {'total_query_files': total_query_files, 'searchFilter': searchFilter}
+        return render(request, 'accounts/querySearchList.html', context)
+    else:
+        context = {'freemium_files': freemium_files, 'premium_files': premium_files,
+                   'content_category': content_category, 'searchFilter': searchFilter,
+                   'premium_count': premium_count, 'freemium_count': freemium_count}
+        return render(request, 'accounts/contentCategoriesPage.html', context)
 
 
 @login_required(login_url='login')
@@ -162,8 +208,22 @@ def fitnessCategoryPage(request):
     premium_files = File.objects.filter(category='Fitness', premium=True)
     freemium_files = File.objects.filter(category='Fitness', premium=False)
     content_category = 'Fitness Contents'
-    context = {'premium_files': premium_files, 'freemium_files': freemium_files, 'content_category': content_category}
-    return render(request, 'accounts/contentCategoriesPage.html', context)
+
+    premium_count = premium_files.count() - 1
+    freemium_count = freemium_files.count() - 1
+
+    total_query_files = premium_files | freemium_files
+    searchFilter = FileFilter(request.GET, queryset=total_query_files)
+    total_query_files = searchFilter.qs
+
+    if total_query_files.count() == 1:
+        context = {'total_query_files': total_query_files, 'searchFilter': searchFilter}
+        return render(request, 'accounts/querySearchList.html', context)
+    else:
+        context = {'freemium_files': freemium_files, 'premium_files': premium_files,
+                   'content_category': content_category, 'searchFilter': searchFilter,
+                   'premium_count': premium_count, 'freemium_count': freemium_count}
+        return render(request, 'accounts/contentCategoriesPage.html', context)
 
 
 @login_required(login_url='login')
@@ -171,8 +231,22 @@ def cookingCategoryPage(request):
     premium_files = File.objects.filter(category='Cooking', premium=True)
     freemium_files = File.objects.filter(category='Cooking', premium=False)
     content_category = 'Cooking Contents'
-    context = {'premium_files': premium_files, 'freemium_files': freemium_files, 'content_category': content_category}
-    return render(request, 'accounts/contentCategoriesPage.html', context)
+
+    premium_count = premium_files.count() - 1
+    freemium_count = freemium_files.count() - 1
+
+    total_query_files = premium_files | freemium_files
+    searchFilter = FileFilter(request.GET, queryset=total_query_files)
+    total_query_files = searchFilter.qs
+
+    if total_query_files.count() == 1:
+        context = {'total_query_files': total_query_files, 'searchFilter': searchFilter}
+        return render(request, 'accounts/querySearchList.html', context)
+    else:
+        context = {'freemium_files': freemium_files, 'premium_files': premium_files,
+                   'content_category': content_category, 'searchFilter': searchFilter,
+                   'premium_count': premium_count, 'freemium_count': freemium_count}
+        return render(request, 'accounts/contentCategoriesPage.html', context)
 
 
 @login_required(login_url='login')
@@ -180,8 +254,22 @@ def entertainmentCategoryPage(request):
     premium_files = File.objects.filter(category='Entertainment', premium=True)
     freemium_files = File.objects.filter(category='Entertainment', premium=False)
     content_category = 'Entertainment Contents'
-    context = {'premium_files': premium_files, 'freemium_files': freemium_files, 'content_category': content_category}
-    return render(request, 'accounts/contentCategoriesPage.html', context)
+
+    premium_count = premium_files.count() - 1
+    freemium_count = freemium_files.count() - 1
+
+    total_query_files = premium_files | freemium_files
+    searchFilter = FileFilter(request.GET, queryset=total_query_files)
+    total_query_files = searchFilter.qs
+
+    if total_query_files.count() == 1:
+        context = {'total_query_files': total_query_files, 'searchFilter': searchFilter}
+        return render(request, 'accounts/querySearchList.html', context)
+    else:
+        context = {'freemium_files': freemium_files, 'premium_files': premium_files,
+                   'content_category': content_category, 'searchFilter': searchFilter,
+                   'premium_count': premium_count, 'freemium_count': freemium_count}
+        return render(request, 'accounts/contentCategoriesPage.html', context)
 
 
 @login_required(login_url='login')
@@ -189,8 +277,22 @@ def technologyCategoryPage(request):
     premium_files = File.objects.filter(category='Technology', premium=True)
     freemium_files = File.objects.filter(category='Technology', premium=False)
     content_category = 'Technology Contents'
-    context = {'premium_files': premium_files, 'freemium_files': freemium_files, 'content_category': content_category}
-    return render(request, 'accounts/contentCategoriesPage.html', context)
+
+    premium_count = premium_files.count() - 1
+    freemium_count = freemium_files.count() - 1
+
+    total_query_files = premium_files | freemium_files
+    searchFilter = FileFilter(request.GET, queryset=total_query_files)
+    total_query_files = searchFilter.qs
+
+    if total_query_files.count() == 1:
+        context = {'total_query_files': total_query_files, 'searchFilter': searchFilter}
+        return render(request, 'accounts/querySearchList.html', context)
+    else:
+        context = {'freemium_files': freemium_files, 'premium_files': premium_files,
+                   'content_category': content_category, 'searchFilter': searchFilter,
+                   'premium_count': premium_count, 'freemium_count': freemium_count}
+        return render(request, 'accounts/contentCategoriesPage.html', context)
 
 
 @login_required(login_url='login')
@@ -198,8 +300,22 @@ def musicCategoryPage(request):
     premium_files = File.objects.filter(category='Music', premium=True)
     freemium_files = File.objects.filter(category='Music', premium=False)
     content_category = 'Music Contents'
-    context = {'premium_files': premium_files, 'freemium_files': freemium_files, 'content_category': content_category}
-    return render(request, 'accounts/contentCategoriesPage.html', context)
+
+    premium_count = premium_files.count() - 1
+    freemium_count = freemium_files.count() - 1
+
+    total_query_files = premium_files | freemium_files
+    searchFilter = FileFilter(request.GET, queryset=total_query_files)
+    total_query_files = searchFilter.qs
+
+    if total_query_files.count() == 1:
+        context = {'total_query_files': total_query_files, 'searchFilter': searchFilter}
+        return render(request, 'accounts/querySearchList.html', context)
+    else:
+        context = {'freemium_files': freemium_files, 'premium_files': premium_files,
+                   'content_category': content_category, 'searchFilter': searchFilter,
+                   'premium_count': premium_count, 'freemium_count': freemium_count}
+        return render(request, 'accounts/contentCategoriesPage.html', context)
 
 
 @login_required(login_url='login')
@@ -207,9 +323,22 @@ def otherCategoryPage(request):
     premium_files = File.objects.filter(category='Other', premium=True)
     freemium_files = File.objects.filter(category='Other', premium=False)
     content_category = 'Other Contents'
-    context = {'premium_files': premium_files, 'freemium_files': freemium_files, 'content_category': content_category}
-    return render(request, 'accounts/contentCategoriesPage.html', context)
 
+    premium_count = premium_files.count() - 1
+    freemium_count = freemium_files.count() - 1
+
+    total_query_files = premium_files | freemium_files
+    searchFilter = FileFilter(request.GET, queryset=total_query_files)
+    total_query_files = searchFilter.qs
+
+    if total_query_files.count() == 1:
+        context = {'total_query_files': total_query_files, 'searchFilter': searchFilter}
+        return render(request, 'accounts/querySearchList.html', context)
+    else:
+        context = {'freemium_files': freemium_files, 'premium_files': premium_files,
+                   'content_category': content_category, 'searchFilter': searchFilter,
+                   'premium_count': premium_count, 'freemium_count': freemium_count}
+        return render(request, 'accounts/contentCategoriesPage.html', context)
 
 def contentViewersCount(request, pk):
     file = get_object_or_404(File, pk=pk)
@@ -238,8 +367,14 @@ def roomShowChatPage(request, room_name, person_name):
 
 def customersListPage(request):
     customers = Customer.objects.all()
-    sender_id = request.user.id
-    context = {'customers': customers, 'sender_id': sender_id}
+    curr_user = request.user
+
+    searchFilter = CustomerFilter(request.GET, queryset=customers)
+    customers = searchFilter.qs
+    query_set_count = customers.count()
+
+    context = {'customers': customers, 'curr_user': curr_user, 'searchFilter': searchFilter,
+               'query_set_count': query_set_count}
     return render(request, 'accounts/customersListPage.html', context)
 
 
@@ -252,19 +387,16 @@ def ShowChatHome(request):
 
 
 def ShowChatPage(request, pk):
-    # chat_recipient = get_object_or_404(Customer, id=pk)
-    # print(chat_recipient)
-    # print(request.user)
+    sender_id = request.user.id
 
-    # if request.user not in chat_recipient.chat_list.awating_chat_list.all():
-    # chat_recipient.chat_list.awating_chat_list.add(request.user)
+    if sender_id == 1 or pk == 1:
+        room_name = str(0)
+    else:
+        room_name = str((sender_id * pk) * (sender_id + pk))
 
-    room_name = pk
     person_name = request.user.first_name
-
     context = {'room_name': room_name, 'person_name': person_name}
     return render(request, "accounts/chat_screen.html", context)
-    # return HttpResponse("Chat page "+room_name+""+person_name)
 
 
 # After the payment is done, payment gateway sends djnago an HHTP POST request with details of completed transactions.
@@ -328,13 +460,12 @@ def payment_method(request):
         context['automatic'] = automatic
         context['stripe_plan_id'] = plan_inst.stripe_plan_id
         # Now in card.html, create hidden input elements with above 2 values and subscription will work
-
         return render(request, 'accounts/card.html', context)
 
 
 # Stripe subscription needs a cutomer/subsciber and plan. Customer/subscriber is a new stripe object, we need to create.
 # Plan is a stripe object which has already been created in OG stripe API dashboard.
-@login_required
+@login_required(login_url='login')
 def card(request):
     stripe.api_key = API_KEY
 
