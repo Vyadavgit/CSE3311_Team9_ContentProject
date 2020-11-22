@@ -36,12 +36,12 @@
             <div class="col-md-6">
                 <div class="profile-head">
                     <h5>
-                        {{ customer.first_name }} {{ customer.last_name }}
+                        {{ curr_customer.first_name }} {{ curr_customer.last_name }}
                     </h5>
                     <h6>
-                        {{customer.profession}}
+                        {{curr_customer.profession}}
                     </h6>
-                    <p class="proile-rating">NUMBER OF CONTENTS : <span>50</span></p>
+                    <p class="proile-rating">NUMBER OF CONTENTS : <span>{{my_contents_count}}</span></p>
                     <ul class="nav nav-tabs" id="myTab" role="tablist">
                         <li class="nav-item">
                             <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">About</a>
@@ -70,7 +70,7 @@
                                 <label>User Id</label>
                             </div>
                             <div class="col-md-6">
-                                <p>{{customer.user}}</p>
+                                <p>{{curr_customer.user}}</p>
                             </div>
                         </div>
                         <div class="row">
@@ -78,7 +78,7 @@
                                 <label>First Name</label>
                             </div>
                             <div class="col-md-6">
-                                <p>{{customer.first_name}}</p>
+                                <p>{{curr_customer.first_name}}</p>
                             </div>
                         </div>
                         <div class="row">
@@ -86,7 +86,7 @@
                                 <label>Last Name</label>
                             </div>
                             <div class="col-md-6">
-                                <p>{{customer.last_name}}</p>
+                                <p>{{curr_customer.last_name}}</p>
                             </div>
                         </div>
                         <div class="row">
@@ -94,7 +94,7 @@
                                 <label>Gender</label>
                             </div>
                             <div class="col-md-6">
-                                <p>{{customer.gender}}</p>
+                                <p>{{curr_customer.gender}}</p>
                             </div>
                         </div>
                         <div class="row">
@@ -102,7 +102,7 @@
                                 <label>Birth Date</label>
                             </div>
                             <div class="col-md-6">
-                                <p>{{customer.birth_date}}</p>
+                                <p>{{curr_customer.birth_date}}</p>
                             </div>
                         </div>
                         <div class="row">
@@ -110,7 +110,7 @@
                                 <label>Email</label>
                             </div>
                             <div class="col-md-6">
-                                <p>{{customer.email}}</p>
+                                <p>{{curr_customer.email}}</p>
                             </div>
                         </div>
                         <div class="row">
@@ -118,7 +118,7 @@
                                 <label>Phone</label>
                             </div>
                             <div class="col-md-6">
-                                <p>{{customer.phone_number}}</p>
+                                <p>{{curr_customer.phone_number}}</p>
                             </div>
                         </div>
                         <div>
