@@ -49,10 +49,16 @@ urlpatterns = [
     # path('showchat/<Decimal:((sender_id*pk)/(sender_id+pk))>/', views.ShowChatPage, name='showchat'),
     path('showchat/<int:pk>/', views.ShowChatPage, name='showchat'),
 
-    path('upgrade/', views.upgrade, name="upgrade"),
-    path('payment_method/', views.payment_method, name="payment_method"),
-    path('card/', views.card, name="card"),
-    path('stripe_webhooks', views.stripe_webhooks, name="stripe_webhooks"),
+    path('addto_saved_files/<int:pk>/', views.savedFiles, name="addto_saved_files"),
+    path('deletefrom_saved_files/<int:pk>/', views.deleteSavedFiles, name="deletefrom_saved_files"),
+    path('saved_files_list/', views.listSavedFiles, name="saved_files_list"),
+
+    path('subscribe/', views.subscribe, name='subscribe'),
+    path('config/', views.stripe_config),
+    path('create-checkout-session/', views.create_checkout_session),
+    path('success/', views.success),
+    path('cancel/', views.cancel),
+    path('webhook/', views.stripe_webhook),
 
 ]
 

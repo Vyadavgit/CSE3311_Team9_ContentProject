@@ -1,0 +1,36 @@
+{% extends 'accounts/main.html' %}
+{% load static %}
+{% block content %}
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Django + Stripe Subscriptions</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <script src="{% static '/js/subscription.js' %}"></script>
+  </head>
+  <body>
+    <div class="container mt-5">
+      {% if subscription.status == "active" %}
+        <h4>Your subscription:</h4>
+        <div class="card" style="width: 18rem;">
+          <div class="card-body">
+            <h5 class="card-title">{{ product.name }}</h5>
+            <p class="card-text">
+              {{ product.description }}
+            </p>
+          </div>
+        </div>
+      <br>
+      <hr>
+      <h5>Cancel your subscription:</h5>
+      <a href='#'>Cancel</a>
+      {% else %}
+        <h4>Monthly subscription $10.00</h4>
+        <hr>
+        <button type="submit" class="btn btn-primary" id="submitBtn">Subscribe</button>
+      {% endif %}
+    </div>
+  </body>
+</html>
+{% endblock %}
