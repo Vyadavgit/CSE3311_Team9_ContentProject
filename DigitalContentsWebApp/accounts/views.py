@@ -19,11 +19,12 @@ from .filters import FileFilter, CustomerFilter
 # TODO review these imports
 import stripe
 from django.conf import settings
-from accounts.stripe import (VideosPlan, set_paid_until)
-from django.http import HttpResponse
-
-# Defining API key
-API_KEY = settings.STRIPE_SECRET_KEY
+from django.http.response import JsonResponse, HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.models import User
+import datetime
+from datetime import date, timedelta, datetime
+from .models import StripeCustomer
 
 
 @unauthenticated_user
@@ -84,24 +85,48 @@ def viewDashboard(request):
     premium_files = File.objects.filter(premium=True)
     freemium_files = File.objects.filter(premium=False)
 
-    premium_count = premium_files.count()-1
-    freemium_count = freemium_files.count()-1
+    # query count is reduced by 1 to match the for loop counter in template
+    premium_count = premium_files.count() - 1
+    freemium_count = freemium_files.count() - 1
 
+    # all premium and freemium files are passed to total query objects for search feature
+    # query count is reduced by 1 to match the for loop counter in template
     total_query_files = premium_files | freemium_files
     searchFilter = FileFilter(request.GET, queryset=total_query_files)
     total_query_files = searchFilter.qs
-    total_query_files_count = total_query_files.count()-1
+    total_query_files_count = total_query_files.count() - 1
 
-    if total_query_files.count() != premium_files.count()+freemium_files.count():
-        context = {'total_query_files': total_query_files, 'searchFilter': searchFilter,
-                   'total_query_files_count': total_query_files_count}
-        return render(request, 'accounts/querySearchList.html', context)
-    else:
-        context = {'freemium_files': freemium_files, 'premium_files': premium_files, 'searchFilter': searchFilter,
-                   'premium_count': premium_count, 'freemium_count': freemium_count}
-        return render(request, 'accounts/dashboard.html', context)
+    # try and except checks if the subscription status is active or inactive to add/remove video poster for
+    # premium content
+    try:
+        # code segment to verify subscription status
+        stripe_customer = StripeCustomer.objects.get(user=request.user)
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        subscription = stripe.Subscription.retrieve(stripe_customer.stripeSubscriptionId)
+
+        if total_query_files.count() != premium_files.count() + freemium_files.count():
+            context = {'total_query_files': total_query_files, 'searchFilter': searchFilter,
+                       'total_query_files_count': total_query_files_count, 'subscription': subscription}
+            return render(request, 'accounts/querySearchList.html', context)
+        else:
+            context = {'freemium_files': freemium_files, 'premium_files': premium_files, 'searchFilter': searchFilter,
+                       'premium_count': premium_count, 'freemium_count': freemium_count, 'subscription': subscription}
+            return render(request, 'accounts/dashboard.html', context)
+
+    # if stripe customer doesnot exist it means subscription status is inactive
+    except StripeCustomer.DoesNotExist:
+        if total_query_files.count() != premium_files.count() + freemium_files.count():
+            context = {'total_query_files': total_query_files, 'searchFilter': searchFilter,
+                       'total_query_files_count': total_query_files_count}
+            return render(request, 'accounts/querySearchList.html', context)
+        else:
+            context = {'freemium_files': freemium_files, 'premium_files': premium_files, 'searchFilter': searchFilter,
+                       'premium_count': premium_count, 'freemium_count': freemium_count}
+            return render(request, 'accounts/dashboard.html', context)
 
 
+# function gets current customer and prints all of its information on the template using attributes of the
+# Customer model
 @login_required(login_url='login')
 def viewProfilePage(request):
     if request.user.is_authenticated:
@@ -133,6 +158,7 @@ def editProfilePage(request):
     return render(request, 'accounts/editProfilePage.html', context)
 
 
+# authenticates the user and provides user a form to upload video file
 @login_required(login_url='login')
 def uploadVideoPage(request):
     if request.user.is_authenticated:
@@ -158,20 +184,26 @@ def viewMyContentsPage(request):
     if request.user.is_authenticated:
         current_user = request.user
 
+        # get current customer, premium and freemium files
         current_customer = Customer.objects.get(user=current_user)
         premium_files = File.objects.filter(customer=current_customer, premium=True)
         freemium_files = File.objects.filter(customer=current_customer, premium=False)
 
-        content_category = 'My Contents'
+        content_category = 'My Contents'  # category is for the template
+
+        # count is reduced by 1 to match the for loop counter in template tag
         premium_count = premium_files.count() - 1
         freemium_count = freemium_files.count() - 1
 
+        # total query for search we need all objects for search query
         total_query_files = premium_files | freemium_files
         searchFilter = FileFilter(request.GET, queryset=total_query_files)
         total_query_files = searchFilter.qs
+        total_query_files_count = total_query_files.count() - 1
 
-        if total_query_files.count() == 1:
-            context = {'total_query_files': total_query_files, 'searchFilter': searchFilter}
+        if total_query_files.count() != premium_files.count() + freemium_files.count():
+            context = {'total_query_files': total_query_files, 'searchFilter': searchFilter,
+                       'total_query_files_count': total_query_files_count}
             return render(request, 'accounts/querySearchList.html', context)
         else:
             context = {'freemium_files': freemium_files, 'premium_files': premium_files,
@@ -180,6 +212,13 @@ def viewMyContentsPage(request):
             return render(request, 'accounts/viewMyContentPage.html', context)
 
 
+# This function filters the  premium and freemium files
+# all files are stored in total_query_files for search feature
+# counter are reduced by 1 to match for loop counter in template
+# try and except checks if the user's subscription status is active and passes context based on that
+# total_query_files.count() != premium_files.count() + freemium_files.count() :- if the query count is not
+# premium + freemium files count i.e if all the files aren't requested to display on the page it means search has been
+# called so we print search files only
 @login_required(login_url='login')
 def comedyCategoryPage(request):
     premium_files = File.objects.filter(category='Comedy', premium=True)
@@ -192,17 +231,43 @@ def comedyCategoryPage(request):
     total_query_files = premium_files | freemium_files
     searchFilter = FileFilter(request.GET, queryset=total_query_files)
     total_query_files = searchFilter.qs
+    total_query_files_count = total_query_files.count() - 1
 
-    if total_query_files.count() == 1:
-        context = {'total_query_files': total_query_files, 'searchFilter': searchFilter}
-        return render(request, 'accounts/querySearchList.html', context)
-    else:
-        context = {'freemium_files': freemium_files, 'premium_files': premium_files,
-                   'content_category': content_category, 'searchFilter': searchFilter,
-                   'premium_count': premium_count, 'freemium_count': freemium_count}
-        return render(request, 'accounts/contentCategoriesPage.html', context)
+    try:
+        # code segment to verify subscription status
+        stripe_customer = StripeCustomer.objects.get(user=request.user)
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        subscription = stripe.Subscription.retrieve(stripe_customer.stripeSubscriptionId)
+
+        if total_query_files.count() != premium_files.count() + freemium_files.count():
+            context = {'total_query_files': total_query_files, 'searchFilter': searchFilter,
+                       'total_query_files_count': total_query_files_count, 'subscription': subscription}
+            return render(request, 'accounts/querySearchList.html', context)
+        else:
+            context = {'freemium_files': freemium_files, 'premium_files': premium_files,
+                       'content_category': content_category, 'searchFilter': searchFilter,
+                       'premium_count': premium_count, 'freemium_count': freemium_count, 'subscription': subscription}
+            return render(request, 'accounts/contentCategoriesPage.html', context)
+
+    except StripeCustomer.DoesNotExist:
+        if total_query_files.count() != premium_files.count() + freemium_files.count():
+            context = {'total_query_files': total_query_files, 'searchFilter': searchFilter,
+                       'total_query_files_count': total_query_files_count}
+            return render(request, 'accounts/querySearchList.html', context)
+        else:
+            context = {'freemium_files': freemium_files, 'premium_files': premium_files,
+                       'content_category': content_category, 'searchFilter': searchFilter,
+                       'premium_count': premium_count, 'freemium_count': freemium_count}
+            return render(request, 'accounts/contentCategoriesPage.html', context)
 
 
+# This function filters the  premium and freemium files
+# all files are stored in total_query_files for search feature
+# counter are reduced by 1 to match for loop counter in template
+# try and except checks if the user's subscription status is active and passes context based on that
+# total_query_files.count() != premium_files.count() + freemium_files.count() :- if the query count is not
+# premium + freemium files count i.e if all the files aren't requested to display on the page it means search has been
+# called so we print search files only
 @login_required(login_url='login')
 def fitnessCategoryPage(request):
     premium_files = File.objects.filter(category='Fitness', premium=True)
@@ -215,17 +280,43 @@ def fitnessCategoryPage(request):
     total_query_files = premium_files | freemium_files
     searchFilter = FileFilter(request.GET, queryset=total_query_files)
     total_query_files = searchFilter.qs
+    total_query_files_count = total_query_files.count() - 1
 
-    if total_query_files.count() == 1:
-        context = {'total_query_files': total_query_files, 'searchFilter': searchFilter}
-        return render(request, 'accounts/querySearchList.html', context)
-    else:
-        context = {'freemium_files': freemium_files, 'premium_files': premium_files,
-                   'content_category': content_category, 'searchFilter': searchFilter,
-                   'premium_count': premium_count, 'freemium_count': freemium_count}
-        return render(request, 'accounts/contentCategoriesPage.html', context)
+    try:
+        # code segment to verify subscription status
+        stripe_customer = StripeCustomer.objects.get(user=request.user)
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        subscription = stripe.Subscription.retrieve(stripe_customer.stripeSubscriptionId)
+
+        if total_query_files.count() != premium_files.count() + freemium_files.count():
+            context = {'total_query_files': total_query_files, 'searchFilter': searchFilter,
+                       'total_query_files_count': total_query_files_count, 'subscription': subscription}
+            return render(request, 'accounts/querySearchList.html', context)
+        else:
+            context = {'freemium_files': freemium_files, 'premium_files': premium_files,
+                       'content_category': content_category, 'searchFilter': searchFilter,
+                       'premium_count': premium_count, 'freemium_count': freemium_count, 'subscription': subscription}
+            return render(request, 'accounts/contentCategoriesPage.html', context)
+
+    except StripeCustomer.DoesNotExist:
+        if total_query_files.count() != premium_files.count() + freemium_files.count():
+            context = {'total_query_files': total_query_files, 'searchFilter': searchFilter,
+                       'total_query_files_count': total_query_files_count}
+            return render(request, 'accounts/querySearchList.html', context)
+        else:
+            context = {'freemium_files': freemium_files, 'premium_files': premium_files,
+                       'content_category': content_category, 'searchFilter': searchFilter,
+                       'premium_count': premium_count, 'freemium_count': freemium_count}
+            return render(request, 'accounts/contentCategoriesPage.html', context)
 
 
+# This function filters the  premium and freemium files
+# all files are stored in total_query_files for search feature
+# counter are reduced by 1 to match for loop counter in template
+# try and except checks if the user's subscription status is active and passes context based on that
+# total_query_files.count() != premium_files.count() + freemium_files.count() :- if the query count is not
+# premium + freemium files count i.e if all the files aren't requested to display on the page it means search has been
+# called so we print search files only
 @login_required(login_url='login')
 def cookingCategoryPage(request):
     premium_files = File.objects.filter(category='Cooking', premium=True)
@@ -238,17 +329,43 @@ def cookingCategoryPage(request):
     total_query_files = premium_files | freemium_files
     searchFilter = FileFilter(request.GET, queryset=total_query_files)
     total_query_files = searchFilter.qs
+    total_query_files_count = total_query_files.count() - 1
 
-    if total_query_files.count() == 1:
-        context = {'total_query_files': total_query_files, 'searchFilter': searchFilter}
-        return render(request, 'accounts/querySearchList.html', context)
-    else:
-        context = {'freemium_files': freemium_files, 'premium_files': premium_files,
-                   'content_category': content_category, 'searchFilter': searchFilter,
-                   'premium_count': premium_count, 'freemium_count': freemium_count}
-        return render(request, 'accounts/contentCategoriesPage.html', context)
+    try:
+        # code segment to verify subscription status
+        stripe_customer = StripeCustomer.objects.get(user=request.user)
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        subscription = stripe.Subscription.retrieve(stripe_customer.stripeSubscriptionId)
+
+        if total_query_files.count() != premium_files.count() + freemium_files.count():
+            context = {'total_query_files': total_query_files, 'searchFilter': searchFilter,
+                       'total_query_files_count': total_query_files_count, 'subscription': subscription}
+            return render(request, 'accounts/querySearchList.html', context)
+        else:
+            context = {'freemium_files': freemium_files, 'premium_files': premium_files,
+                       'content_category': content_category, 'searchFilter': searchFilter,
+                       'premium_count': premium_count, 'freemium_count': freemium_count, 'subscription': subscription}
+            return render(request, 'accounts/contentCategoriesPage.html', context)
+
+    except StripeCustomer.DoesNotExist:
+        if total_query_files.count() != premium_files.count() + freemium_files.count():
+            context = {'total_query_files': total_query_files, 'searchFilter': searchFilter,
+                       'total_query_files_count': total_query_files_count}
+            return render(request, 'accounts/querySearchList.html', context)
+        else:
+            context = {'freemium_files': freemium_files, 'premium_files': premium_files,
+                       'content_category': content_category, 'searchFilter': searchFilter,
+                       'premium_count': premium_count, 'freemium_count': freemium_count}
+            return render(request, 'accounts/contentCategoriesPage.html', context)
 
 
+# This function filters the  premium and freemium files
+# all files are stored in total_query_files for search feature
+# counter are reduced by 1 to match for loop counter in template
+# try and except checks if the user's subscription status is active and passes context based on that
+# total_query_files.count() != premium_files.count() + freemium_files.count() :- if the query count is not
+# premium + freemium files count i.e if all the files aren't requested to display on the page it means search has been
+# called so we print search files only
 @login_required(login_url='login')
 def entertainmentCategoryPage(request):
     premium_files = File.objects.filter(category='Entertainment', premium=True)
@@ -261,17 +378,43 @@ def entertainmentCategoryPage(request):
     total_query_files = premium_files | freemium_files
     searchFilter = FileFilter(request.GET, queryset=total_query_files)
     total_query_files = searchFilter.qs
+    total_query_files_count = total_query_files.count() - 1
 
-    if total_query_files.count() == 1:
-        context = {'total_query_files': total_query_files, 'searchFilter': searchFilter}
-        return render(request, 'accounts/querySearchList.html', context)
-    else:
-        context = {'freemium_files': freemium_files, 'premium_files': premium_files,
-                   'content_category': content_category, 'searchFilter': searchFilter,
-                   'premium_count': premium_count, 'freemium_count': freemium_count}
-        return render(request, 'accounts/contentCategoriesPage.html', context)
+    try:
+        # code segment to verify subscription status
+        stripe_customer = StripeCustomer.objects.get(user=request.user)
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        subscription = stripe.Subscription.retrieve(stripe_customer.stripeSubscriptionId)
+
+        if total_query_files.count() != premium_files.count() + freemium_files.count():
+            context = {'total_query_files': total_query_files, 'searchFilter': searchFilter,
+                       'total_query_files_count': total_query_files_count, 'subscription': subscription}
+            return render(request, 'accounts/querySearchList.html', context)
+        else:
+            context = {'freemium_files': freemium_files, 'premium_files': premium_files,
+                       'content_category': content_category, 'searchFilter': searchFilter,
+                       'premium_count': premium_count, 'freemium_count': freemium_count, 'subscription': subscription}
+            return render(request, 'accounts/contentCategoriesPage.html', context)
+
+    except StripeCustomer.DoesNotExist:
+        if total_query_files.count() != premium_files.count() + freemium_files.count():
+            context = {'total_query_files': total_query_files, 'searchFilter': searchFilter,
+                       'total_query_files_count': total_query_files_count}
+            return render(request, 'accounts/querySearchList.html', context)
+        else:
+            context = {'freemium_files': freemium_files, 'premium_files': premium_files,
+                       'content_category': content_category, 'searchFilter': searchFilter,
+                       'premium_count': premium_count, 'freemium_count': freemium_count}
+            return render(request, 'accounts/contentCategoriesPage.html', context)
 
 
+# This function filters the  premium and freemium files
+# all files are stored in total_query_files for search feature
+# counter are reduced by 1 to match for loop counter in template
+# try and except checks if the user's subscription status is active and passes context based on that
+# total_query_files.count() != premium_files.count() + freemium_files.count() :- if the query count is not
+# premium + freemium files count i.e if all the files aren't requested to display on the page it means search has been
+# called so we print search files only
 @login_required(login_url='login')
 def technologyCategoryPage(request):
     premium_files = File.objects.filter(category='Technology', premium=True)
@@ -284,17 +427,43 @@ def technologyCategoryPage(request):
     total_query_files = premium_files | freemium_files
     searchFilter = FileFilter(request.GET, queryset=total_query_files)
     total_query_files = searchFilter.qs
+    total_query_files_count = total_query_files.count() - 1
 
-    if total_query_files.count() == 1:
-        context = {'total_query_files': total_query_files, 'searchFilter': searchFilter}
-        return render(request, 'accounts/querySearchList.html', context)
-    else:
-        context = {'freemium_files': freemium_files, 'premium_files': premium_files,
-                   'content_category': content_category, 'searchFilter': searchFilter,
-                   'premium_count': premium_count, 'freemium_count': freemium_count}
-        return render(request, 'accounts/contentCategoriesPage.html', context)
+    try:
+        # code segment to verify subscription status
+        stripe_customer = StripeCustomer.objects.get(user=request.user)
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        subscription = stripe.Subscription.retrieve(stripe_customer.stripeSubscriptionId)
+
+        if total_query_files.count() != premium_files.count() + freemium_files.count():
+            context = {'total_query_files': total_query_files, 'searchFilter': searchFilter,
+                       'total_query_files_count': total_query_files_count, 'subscription': subscription}
+            return render(request, 'accounts/querySearchList.html', context)
+        else:
+            context = {'freemium_files': freemium_files, 'premium_files': premium_files,
+                       'content_category': content_category, 'searchFilter': searchFilter,
+                       'premium_count': premium_count, 'freemium_count': freemium_count, 'subscription': subscription}
+            return render(request, 'accounts/contentCategoriesPage.html', context)
+
+    except StripeCustomer.DoesNotExist:
+        if total_query_files.count() != premium_files.count() + freemium_files.count():
+            context = {'total_query_files': total_query_files, 'searchFilter': searchFilter,
+                       'total_query_files_count': total_query_files_count}
+            return render(request, 'accounts/querySearchList.html', context)
+        else:
+            context = {'freemium_files': freemium_files, 'premium_files': premium_files,
+                       'content_category': content_category, 'searchFilter': searchFilter,
+                       'premium_count': premium_count, 'freemium_count': freemium_count}
+            return render(request, 'accounts/contentCategoriesPage.html', context)
 
 
+# This function filters the  premium and freemium files
+# all files are stored in total_query_files for search feature
+# counter are reduced by 1 to match for loop counter in template
+# try and except checks if the user's subscription status is active and passes context based on that
+# total_query_files.count() != premium_files.count() + freemium_files.count() :- if the query count is not
+# premium + freemium files count i.e if all the files aren't requested to display on the page it means search has been
+# called so we print search files only
 @login_required(login_url='login')
 def musicCategoryPage(request):
     premium_files = File.objects.filter(category='Music', premium=True)
@@ -307,17 +476,43 @@ def musicCategoryPage(request):
     total_query_files = premium_files | freemium_files
     searchFilter = FileFilter(request.GET, queryset=total_query_files)
     total_query_files = searchFilter.qs
+    total_query_files_count = total_query_files.count() - 1
 
-    if total_query_files.count() == 1:
-        context = {'total_query_files': total_query_files, 'searchFilter': searchFilter}
-        return render(request, 'accounts/querySearchList.html', context)
-    else:
-        context = {'freemium_files': freemium_files, 'premium_files': premium_files,
-                   'content_category': content_category, 'searchFilter': searchFilter,
-                   'premium_count': premium_count, 'freemium_count': freemium_count}
-        return render(request, 'accounts/contentCategoriesPage.html', context)
+    try:
+        # code segment to verify subscription status
+        stripe_customer = StripeCustomer.objects.get(user=request.user)
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        subscription = stripe.Subscription.retrieve(stripe_customer.stripeSubscriptionId)
+
+        if total_query_files.count() != premium_files.count() + freemium_files.count():
+            context = {'total_query_files': total_query_files, 'searchFilter': searchFilter,
+                       'total_query_files_count': total_query_files_count, 'subscription': subscription}
+            return render(request, 'accounts/querySearchList.html', context)
+        else:
+            context = {'freemium_files': freemium_files, 'premium_files': premium_files,
+                       'content_category': content_category, 'searchFilter': searchFilter,
+                       'premium_count': premium_count, 'freemium_count': freemium_count, 'subscription': subscription}
+            return render(request, 'accounts/contentCategoriesPage.html', context)
+
+    except StripeCustomer.DoesNotExist:
+        if total_query_files.count() != premium_files.count() + freemium_files.count():
+            context = {'total_query_files': total_query_files, 'searchFilter': searchFilter,
+                       'total_query_files_count': total_query_files_count}
+            return render(request, 'accounts/querySearchList.html', context)
+        else:
+            context = {'freemium_files': freemium_files, 'premium_files': premium_files,
+                       'content_category': content_category, 'searchFilter': searchFilter,
+                       'premium_count': premium_count, 'freemium_count': freemium_count}
+            return render(request, 'accounts/contentCategoriesPage.html', context)
 
 
+# This function filters the  premium and freemium files
+# all files are stored in total_query_files for search feature
+# counter are reduced by 1 to match for loop counter in template
+# try and except checks if the user's subscription status is active and passes context based on that
+# total_query_files.count() != premium_files.count() + freemium_files.count() :- if the query count is not
+# premium + freemium files count i.e if all the files aren't requested to display on the page it means search has been
+# called so we print search files only
 @login_required(login_url='login')
 def otherCategoryPage(request):
     premium_files = File.objects.filter(category='Other', premium=True)
@@ -330,24 +525,50 @@ def otherCategoryPage(request):
     total_query_files = premium_files | freemium_files
     searchFilter = FileFilter(request.GET, queryset=total_query_files)
     total_query_files = searchFilter.qs
+    total_query_files_count = total_query_files.count() - 1
 
-    if total_query_files.count() == 1:
-        context = {'total_query_files': total_query_files, 'searchFilter': searchFilter}
-        return render(request, 'accounts/querySearchList.html', context)
-    else:
-        context = {'freemium_files': freemium_files, 'premium_files': premium_files,
-                   'content_category': content_category, 'searchFilter': searchFilter,
-                   'premium_count': premium_count, 'freemium_count': freemium_count}
-        return render(request, 'accounts/contentCategoriesPage.html', context)
+    try:
+        # code segment to verify subscription status
+        stripe_customer = StripeCustomer.objects.get(user=request.user)
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        subscription = stripe.Subscription.retrieve(stripe_customer.stripeSubscriptionId)
 
+        if total_query_files.count() != premium_files.count() + freemium_files.count():
+            context = {'total_query_files': total_query_files, 'searchFilter': searchFilter,
+                       'total_query_files_count': total_query_files_count, 'subscription': subscription}
+            return render(request, 'accounts/querySearchList.html', context)
+        else:
+            context = {'freemium_files': freemium_files, 'premium_files': premium_files,
+                       'content_category': content_category, 'searchFilter': searchFilter,
+                       'premium_count': premium_count, 'freemium_count': freemium_count, 'subscription': subscription}
+            return render(request, 'accounts/contentCategoriesPage.html', context)
+
+    except StripeCustomer.DoesNotExist:
+        if total_query_files.count() != premium_files.count() + freemium_files.count():
+            context = {'total_query_files': total_query_files, 'searchFilter': searchFilter,
+                       'total_query_files_count': total_query_files_count}
+            return render(request, 'accounts/querySearchList.html', context)
+        else:
+            context = {'freemium_files': freemium_files, 'premium_files': premium_files,
+                       'content_category': content_category, 'searchFilter': searchFilter,
+                       'premium_count': premium_count, 'freemium_count': freemium_count}
+            return render(request, 'accounts/contentCategoriesPage.html', context)
+
+
+# function that counts the views of the file
+@login_required(login_url='login')
 def contentViewersCount(request, pk):
     file = get_object_or_404(File, pk=pk)
+
+    # if the user isn't in viewers list of the file then add it to the list
     if request.user not in file.content_viewers.all():
         file.content_viewers.add(request.user)
     context = {'file': file}
     return render(request, 'accounts/videoPlayerPage.html', context)
 
 
+# TODO explore more about this function
+@login_required(login_url='login')
 def roomShowChatHome(request):
     if request.user.is_authenticated:
         current_user = request.user
@@ -356,6 +577,8 @@ def roomShowChatHome(request):
     return render(request, "accounts/room_chat_home.html", context)
 
 
+# this function diaplays the chat page for chat room
+@login_required(login_url='login')
 def roomShowChatPage(request, room_name, person_name):
     if request.user.is_authenticated:
         current_user = request.user
@@ -365,6 +588,8 @@ def roomShowChatPage(request, room_name, person_name):
     return render(request, "accounts/room_chat_screen.html", {'room_name': room_name, 'person_name': person_name})
 
 
+# this function takes you to chat screen and lists the user available for chat
+@login_required(login_url='login')
 def customersListPage(request):
     customers = Customer.objects.all()
     curr_user = request.user
@@ -375,9 +600,11 @@ def customersListPage(request):
 
     context = {'customers': customers, 'curr_user': curr_user, 'searchFilter': searchFilter,
                'query_set_count': query_set_count}
-    return render(request, 'accounts/customersListPage.html', context)
+    return render(request, 'accounts/chat_screen.html', context)
 
 
+# TODO explore more about this function
+@login_required(login_url='login')
 def ShowChatHome(request):
     if request.user.is_authenticated:
         current_user = request.user
@@ -386,160 +613,207 @@ def ShowChatHome(request):
     return render(request, context)
 
 
+# This function displays the chat page and customer list for one-on-one chat
+@login_required(login_url='login')
 def ShowChatPage(request, pk):
-    sender_id = request.user.id
+    # code segment for listing the user for chat and search feature associated with it
+    customers = Customer.objects.all()
+    curr_user = request.user
+    searchFilter = CustomerFilter(request.GET, queryset=customers)
+    customers = searchFilter.qs
+    query_set_count = customers.count()
+    # code segment for creating unique room for a pair of users
+    sender_id = request.user.customer.id
 
+    # unique room number is created for every unique pair if id is 0 it is an exception so a hardcoded uniqued room 0
+    # is manually assigned to room name
     if sender_id == 1 or pk == 1:
         room_name = str(0)
     else:
+        # unique room number is created for every unique pair
         room_name = str((sender_id * pk) * (sender_id + pk))
 
-    person_name = request.user.first_name
-    context = {'room_name': room_name, 'person_name': person_name}
+    # person_name is passed to chat page to move texts left or right based on sender/reciver
+    person_name = request.user.customer.user
+
+    context = {'room_name': room_name, 'person_name': person_name, 'customers': customers, 'curr_user': curr_user,
+               'searchFilter': searchFilter,
+               'query_set_count': query_set_count}
     return render(request, "accounts/chat_screen.html", context)
 
 
-# After the payment is done, payment gateway sends djnago an HHTP POST request with details of completed transactions.
-# Stripe calls http post request "webhooks".
-# Add basic validation to make sure this POST comes from Stripe. Do this by adding Http header which contains string called signature.
-def stripe_webhooks(request):
+# This function saves the files to saved files list
+@login_required(login_url='login')
+def savedFiles(request, pk):
+    file = get_object_or_404(File, pk=pk)
+    customer = get_object_or_404(Customer, user=request.user)
+
+    if file not in customer.saved_files.all():
+        customer.saved_files.add(file)
+    return redirect('saved_files_list')
+
+
+# this function removes the files from customer's saved files list
+@login_required(login_url='login')
+def deleteSavedFiles(request, pk):
+    file = get_object_or_404(File, pk=pk)
+    customer = get_object_or_404(Customer, user=request.user)
+    customer.saved_files.remove(file)
+    return redirect('saved_files_list')
+
+
+# This function filters the  premium and freemium files
+# all files are stored in total_query_files for search feature
+# counter are reduced by 1 to match for loop counter in template
+# try and except checks if the user's subscription status is active and passes context based on that
+# total_query_files.count() != premium_files.count() + freemium_files.count() :- if the query count is not
+# premium + freemium files count i.e if all the files aren't requested to display on the page it means search has been
+# called so we print search files only
+@login_required(login_url='login')
+def listSavedFiles(request):
+    curr_customer = get_object_or_404(Customer, user=request.user)
+
+    premium_files = curr_customer.saved_files.filter(premium=True)
+    freemium_files = curr_customer.saved_files.filter(premium=False)
+
+    content_category = 'My Saved Contents'
+
+    premium_count = premium_files.count() - 1
+    freemium_count = freemium_files.count() - 1
+
+    total_query_files = premium_files | freemium_files
+    searchFilter = FileFilter(request.GET, queryset=total_query_files)
+    total_query_files = searchFilter.qs
+    total_query_files_count = total_query_files.count() - 1
+
+    try:
+        # code segment to verify subscription status
+        stripe_customer = StripeCustomer.objects.get(user=request.user)
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        subscription = stripe.Subscription.retrieve(stripe_customer.stripeSubscriptionId)
+
+        if total_query_files.count() != premium_files.count() + freemium_files.count():
+            context = {'total_query_files': total_query_files, 'searchFilter': searchFilter,
+                       'total_query_files_count': total_query_files_count, 'subscription': subscription}
+            return render(request, 'accounts/querySearchList.html', context)
+        else:
+            context = {'freemium_files': freemium_files, 'premium_files': premium_files,
+                       'content_category': content_category, 'searchFilter': searchFilter,
+                       'premium_count': premium_count, 'freemium_count': freemium_count, 'subscription': subscription}
+            return render(request, 'accounts/savedFilesListPage.html', context)
+
+    except StripeCustomer.DoesNotExist:
+        if total_query_files.count() != premium_files.count() + freemium_files.count():
+            context = {'total_query_files': total_query_files, 'searchFilter': searchFilter,
+                       'total_query_files_count': total_query_files_count}
+            return render(request, 'accounts/querySearchList.html', context)
+        else:
+            context = {'freemium_files': freemium_files, 'premium_files': premium_files,
+                       'content_category': content_category, 'searchFilter': searchFilter,
+                       'premium_count': premium_count, 'freemium_count': freemium_count}
+            return render(request, 'accounts/savedFilesListPage.html', context)
+
+
+# this function receives request if the user goes to subscribe and gets stripe_customer from StripeCustomer objects
+@login_required(login_url='login')
+def subscribe(request):
+    try:
+        # Retrieving subscription & product
+        stripe_customer = StripeCustomer.objects.get(user=request.user)
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        subscription = stripe.Subscription.retrieve(stripe_customer.stripeSubscriptionId)
+        product = stripe.Product.retrieve(subscription.plan.product)
+        # More additional data from subscription or product
+        # https://stripe.com/docs/api/subscriptions/object
+        # https://stripe.com/docs/api/products/object
+
+        return render(request, 'accounts/subscribe.html', {
+            'subscription': subscription,
+            'product': product,
+        })
+
+    except StripeCustomer.DoesNotExist:
+        return render(request, 'accounts/subscribe.html')
+
+# it is used to handle the ajax request
+@csrf_exempt
+def stripe_config(request):
+    if request.method == 'GET':
+        stripe_config = {'publicKey': settings.STRIPE_PUBLISHABLE_KEY}
+        return JsonResponse(stripe_config, safe=False)
+
+# this function sends ajax request to the server and generate a new checkout id
+@csrf_exempt
+def create_checkout_session(request):
+    if request.method == 'GET':
+        domain_url = 'http://localhost:8000/'
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        try:
+            checkout_session = stripe.checkout.Session.create(
+                client_reference_id=request.user.id if request.user.is_authenticated else None,
+                success_url=domain_url + 'success?session_id={CHECKOUT_SESSION_ID}',
+                cancel_url=domain_url + 'cancel/',
+                payment_method_types=['card'],
+                mode='subscription',
+                line_items=[
+                    {
+                        'price': settings.STRIPE_PRICE_ID,
+                        'quantity': 1,
+                    }
+                ]
+            )
+            return JsonResponse({'sessionId': checkout_session['id']})
+        except Exception as e:
+            return JsonResponse({'error': str(e)})
+
+
+# this function prints subscription successful message
+@login_required(login_url='login')
+def success(request):
+    return render(request, 'accounts/success.html')
+
+
+# TODO cancel subscription
+@login_required(login_url='login')
+def cancel(request):
+    return render(request, 'accounts/cancel.html')
+
+
+@csrf_exempt
+def stripe_webhook(request):
+    stripe.api_key = settings.STRIPE_SECRET_KEY
+    endpoint_secret = settings.STRIPE_ENDPOINT_SECRET
     payload = request.body
     sig_header = request.META['HTTP_STRIPE_SIGNATURE']
     event = None
 
     try:
         event = stripe.Webhook.construct_event(
-            payload, sig_header, settings.STRIPE_WEBHOOK_SIGNING_KEY
+            payload, sig_header, endpoint_secret
         )
-    except ValueError:
+    except ValueError as e:
         # Invalid payload
         return HttpResponse(status=400)
-    except stripe.error.SignatureVerificationError:
+    except stripe.error.SignatureVerificationError as e:
         # Invalid signature
         return HttpResponse(status=400)
 
-    # Handle the event
-    if event.type == 'charge.succeeded':
-        # object has  payment_intent attr
-        set_paid_until(event.data.object)
-    # return status should be 200 or else stripe will keep on posting the event
+    # Handle the checkout.session.completed event
+    if event['type'] == 'checkout.session.completed':
+        session = event['data']['object']
+
+        # Fetch all the required data from session
+        client_reference_id = session.get('client_reference_id')
+        stripe_customer_id = session.get('customer')
+        stripe_subscription_id = session.get('subscription')
+
+        # Get the user and create a new StripeCustomer
+        user = User.objects.get(id=client_reference_id)
+        StripeCustomer.objects.create(
+            user=user,
+            stripeCustomerId=stripe_customer_id,
+            stripeSubscriptionId=stripe_subscription_id,
+        )
+        print(user.username + ' just subscribed.')
+
     return HttpResponse(status=200)
-
-
-@login_required(login_url='login')
-def upgrade(request):
-    return render(request, 'accounts/upgrade.html')
-
-
-@login_required(login_url='login')
-def payment_method(request):
-    stripe.api_key = API_KEY
-    plan = request.POST.get('plan', 'm')
-    automatic = request.POST.get('automatic', 'on')
-    payment_method = request.POST.get('payment_method', 'card')
-    context = {}
-
-    plan_inst = VideosPlan(plan_id=plan)
-
-    # Instantiating Payment Intent object.
-    # It contains temporary secret key which is used for client side JS to render the card
-    payment_intent = stripe.PaymentIntent.create(
-        amount=plan_inst.amount,
-        currency=plan_inst.currency,
-        payment_method_types=['card']
-    )
-
-    if payment_method == 'card':
-        context['secret_key'] = payment_intent.client_secret
-        context['STRIPE_PUBLISHABLE_KEY'] = settings.STRIPE_PUBLISHABLE_KEY
-        context['customer_email'] = request.user.email
-        # Payment Intent requires a payment method. Set an existing payment method on the PaymentIntent.
-        # So, passing PI to context
-        context['payment_intent_id'] = payment_intent.id
-
-        context['automatic'] = automatic
-        context['stripe_plan_id'] = plan_inst.stripe_plan_id
-        # Now in card.html, create hidden input elements with above 2 values and subscription will work
-        return render(request, 'accounts/card.html', context)
-
-
-# Stripe subscription needs a cutomer/subsciber and plan. Customer/subscriber is a new stripe object, we need to create.
-# Plan is a stripe object which has already been created in OG stripe API dashboard.
-@login_required(login_url='login')
-def card(request):
-    stripe.api_key = API_KEY
-
-    # Creating payment. It contains subscription and one time payment.
-
-    # Extracting id's and later passing it to context of payment_method
-    payment_intent_id = request.POST['payment_intent_id']
-    payment_method_id = request.POST['payment_method_id']
-
-    # Extracting parameters to make subscription work:- stripe_plan_id and automatic
-    stripe_plan_id = request.POST['stripe_plan_id']
-    automatic = request.POST['automatic']
-
-    if automatic == 'on':
-        # Create Subscriptions and customers
-
-        # Create customers
-        # Subscriber will be identified by email address and should have assoicated PMobject
-        customer = stripe.Customer.create(
-            name=request.user.username,
-            email=request.user.email,
-            payment_method=payment_method_id,
-            invoice_settings={
-                'default_payment_method': payment_method_id
-            }
-        )
-        # create subscription
-        # It shsould be associated with subscriber and plan
-        stripe.Subscription.create(
-            customer=customer.id,
-            items=[
-                {
-                    'plan': stripe_plan_id
-                },
-            ]
-        )
-        # retrieving latest invoice. It contains payment associated.
-        # latest_invoice = stripe.Invoice.retrieve(s.latest_invoice)
-
-        stripe.PaymentIntent.modify(
-            payment_intent_id,
-            payment_method=payment_method_id,
-            customer=customer.id
-        )
-
-        '''After creating customer and subscription, stripe automatically creates an invoice and associates latest invoice
-        with created subscription and this invoice is open and needs to be paid.
-        After subscription is created, we need to extract latest invoice and from that latest invoice we will get a 
-        different payment and we need to confirm new payment intent instead of old PI.'''
-
-        # Confirming payment intent
-        '''ret = stripe.PaymentIntent.confirm(
-            latest_invoice.payment_intent
-        )
-
-        # In case of card requiring 3d secure, the return status of npaymemnt intent confirm will be "requires_action".
-        # Handling this case by displaying this 3d secure template.
-        if ret.status == 'requires_action':
-            # payment intent secret/client secret is retrieved from payment intent
-            pi = stripe.PaymentIntent.retrieve(  # pi = payment intent
-                latest_invoice.payment_intent
-            )
-            context = {}
-
-            context['payment_intent_secret'] = pi.client_secret
-            context['STRIPE_PUBLISHABLE_KEY'] = settings.STRIPE_PUBLISHABLE_KEY
-
-            return render(request, 'accounts/3dsec.html', context)'''
-    else:
-        # One time payment.
-        # Using stripe API, assoicating PIid with PMid
-        stripe.PaymentIntent.modify(
-            payment_intent_id,
-            payment_method=payment_method_id
-        )
-
-    return render(request, 'accounts/thankyou.html')

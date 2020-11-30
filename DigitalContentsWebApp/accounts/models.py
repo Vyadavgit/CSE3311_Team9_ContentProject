@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 import datetime
 from datetime import date
 
+
 # Create your models here.
 class Customer(models.Model):
     user = models.OneToOneField(User, null=True, blank=True, on_delete=models.CASCADE)
@@ -16,8 +17,7 @@ class Customer(models.Model):
     profession = models.CharField(max_length=250, null=True)
     videofile = models.FileField(default="video_null.mp4", null=True, blank=True)
     video_poster = models.ImageField(default="poster_null.jpg", null=True, blank=True)
-    subscribe = models.BooleanField(default=False, blank=True, null=False)
-    # chat_list = models.ForeignKey(Chat, null=True, blank=True, on_delete=models.CASCADE)
+    saved_files = models.ManyToManyField('File', related_name='+')  # TODO research more about this relation
 
     def __str__(self):
         if self.first_name and self.last_name:
@@ -39,7 +39,7 @@ class Customer(models.Model):
         self.paid_until = paid_until
         self.save()
 
-    def has_paid(self, current_date = datetime.date.today()):
+    def has_paid(self, current_date=datetime.date.today()):
         if self.paid_until is None:
             return False
 
@@ -60,13 +60,13 @@ class File(models.Model):
     content_viewers = models.ManyToManyField(User)
 
     def __str__(self):
-        return self.description
-
-# class Chat(models.Model):
-#     awating_chat_list = models.ManyToManyField(User)
-#
-#     def __str__(self):
-#         return str(self.id)
+        return self.title
 
 
+class StripeCustomer(models.Model):
+    user = models.OneToOneField(to=User, on_delete=models.CASCADE)
+    stripeCustomerId = models.CharField(max_length=255)
+    stripeSubscriptionId = models.CharField(max_length=255)
 
+    def __str__(self):
+        return self.user.username

@@ -4,63 +4,66 @@
 
 {% load static %}
 <div align="center">
-    <video width='1000' height='525' controls autoplay>
-    <source src="{{file.upload_video.url}}" type='video/mp4'>
-    Your browser does not support the video tag.
-</video>
+    <video width='700' height='400' controls autoplay>
+        <source src="{{file.upload_video.url}}" type='video/mp4'>
+        Your browser does not support the video tag.
+    </video>
     <div>
-<!--        <p style="color:black; font-weight:bold;">"{{ file.title }}" Views: {{file.content_viewers.count}}</p>-->
+        <!--        <p style="color:black; font-weight:bold;">"{{ file.title }}" Views: {{file.content_viewers.count}}</p>-->
+        <button class="btn btn-outline-success my-1 my-sm-0" type="submit"><a href = "{% url 'addto_saved_files' file.pk %}">Add to saved List</a></button>
+        <button class="btn btn-danger my-1 my-sm-0" type="submit"><a href = "{% url 'deletefrom_saved_files' file.pk %}">Remove from saved List</a></button>
+
     </div>
 </div>
 
 <br><br>
 <h2>Content Info</h2>
 <br>
-            <div>
-                <div class="tab-content profile-tab" id="myTabContent">
-                    <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label style="font-weight: bold">Customer</label>
-                            </div>
-                            <div class="col-md-6">
-                                <p style="color:black;">{{file.customer}}</p>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label style="font-weight: bold">Title</label>
-                            </div>
-                            <div class="col-md-6">
-                                <p style="color:black;">{{file.title}}</p>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label style="font-weight: bold">Category</label>
-                            </div>
-                            <div class="col-md-6">
-                                <p style="color:black;">{{file.category}}</p>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label style="font-weight: bold">Posted date</label>
-                            </div>
-                            <div class="col-md-6">
-                                <p style="color:black;">{{file.upload_date_and_time}}</p>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label style="font-weight: bold">Total number of views</label>
-                            </div>
-                            <div class="col-md-6">
-                                <p style="color:black;">{{file.content_viewers.count}}</p>
-                            </div>
-                        </div>
-                    </div>
+<div>
+    <div class="tab-content profile-tab" id="myTabContent">
+        <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+            <div class="row">
+                <div class="col-md-6">
+                    <label style="font-weight: bold">Customer</label>
+                </div>
+                <div class="col-md-6">
+                    <p style="color:black;">{{file.customer}}</p>
                 </div>
             </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <label style="font-weight: bold">Title</label>
+                </div>
+                <div class="col-md-6">
+                    <p style="color:black;">{{file.title}}</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <label style="font-weight: bold">Category</label>
+                </div>
+                <div class="col-md-6">
+                    <p style="color:black;">{{file.category}}</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <label style="font-weight: bold">Posted date</label>
+                </div>
+                <div class="col-md-6">
+                    <p style="color:black;">{{file.upload_date_and_time}}</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <label style="font-weight: bold">Total number of views</label>
+                </div>
+                <div class="col-md-6">
+                    <p style="color:black;">{{file.content_viewers.count}}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 {% endblock %}

@@ -35,9 +35,9 @@
     {% if forloop.counter0 == premium_count %}
     <div class="col" align="center">
         <br>
-        {% if request.user.customer.subscribe == False %}
-        <a href = "{% url 'upgrade' %}">
-            <video  width='250' height='150' controls poster="{{request.user.customer.video_poster.url}}">
+        {% if subscription.status != "active" %}
+        <a href = "{% url 'subscribe' %}">
+            <video  width='250' height='150' controls poster="{{file.customer.video_poster.url}}">
                 <source src="{{file.upload_video.url}}" type='video/mp4'>
                 Your browser does not support the video tag.
             </video>
@@ -65,9 +65,9 @@
     {% else %}
     <div class="col" align="center">
         <br>
-        {% if request.user.customer.subscribe == False %}
-        <a href = "{% url 'upgrade' %}">
-            <video  width='250' height='150' controls poster="{{request.user.customer.video_poster.url}}">
+        {% if subscription.status != "active" %}
+        <a href = "{% url 'subscribe' %}">
+            <video  width='250' height='150' controls poster="{{file.customer.video_poster.url}}">
                 <source src="{{file.upload_video.url}}" type='video/mp4'>
                 Your browser does not support the video tag.
             </video>
@@ -91,9 +91,9 @@
     {% if forloop.counter0|add:2|divisibleby:3 %}
     <div class="col" align="center">
         <br>
-        {% if request.user.customer.subscribe == False %}
-        <a href = "{% url 'upgrade' %}">
-            <video  width='250' height='150' controls poster="{{request.user.customer.video_poster.url}}">
+        {% if subscription.status != "active" %}
+        <a href = "{% url 'subscribe' %}">
+            <video  width='250' height='150' controls poster="{{file.customer.video_poster.url}}">
                 <source src="{{file.upload_video.url}}" type='video/mp4'>
                 Your browser does not support the video tag.
             </video>
@@ -117,9 +117,9 @@
     {% else %}
     <div class="col" align="center">
         <br>
-        {% if request.user.customer.subscribe == False %}
-        <a href = "{% url 'upgrade' %}">
-            <video  width='250' height='150' controls poster="{{request.user.customer.video_poster.url}}">
+        {% if subscription.status != "active" %}
+        <a href = "{% url 'subscribe' %}">
+            <video  width='250' height='150' controls poster="{{file.customer.video_poster.url}}">
                 <source src="{{file.upload_video.url}}" type='video/mp4'>
                 Your browser does not support the video tag.
             </video>
@@ -142,9 +142,9 @@
     {% else %}
     <div class="col" align="center">
         <br>
-        {% if request.user.customer.subscribe == False %}
-        <a href = "{% url 'upgrade' %}">
-            <video  width='250' height='150' controls poster="{{request.user.customer.video_poster.url}}">
+        {% if subscription.status != "active" %}
+        <a href = "{% url 'subscribe' %}">
+            <video  width='250' height='150' controls poster="{{file.customer.video_poster.url}}">
                 <source src="{{file.upload_video.url}}" type='video/mp4'>
                 Your browser does not support the video tag.
             </video>
