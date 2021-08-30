@@ -102,6 +102,19 @@ Run <br />
     ● Use command “stripe login” in the terminal <br />
     ● Open a web browser and navigate to “http://127.0.0.1:8000/” (or use the IP address
     provided by Django server in the command-line interface) <br />
+    
+### Enable Forget password
+To enable forget you password edit SMTP Configuration inside settings.py           
+
+```
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = '___your_email_host__'
+EMAIL_PORT = '__port_number__'
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = '__username__'
+EMAIL_HOST_PASSWORD = '__password__'
+
+```
 
 
 **Info for contributers**: <br />
